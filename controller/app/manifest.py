@@ -1,5 +1,6 @@
 import time
 from bs4 import BeautifulSoup
+from datetime import datetime
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -63,14 +64,9 @@ class Manifest(object):
 			time.sleep(1)
 			rows = driver.find_elements_by_css_selector('.z-listbox-body tbody:nth-child(2) > tr')
 			self.parseResponses(rows)
+			self.sortResponses()
 
-			# try:
-			# 	WebDriverWait(driver, 30).until(lambda driver: driver.find_element_by_css_selector('.z-listbox-body > table > tbody:nth-child(2)').text.strip() != '')
-			# except TimeoutException:
-			# 	print('Data not found..')
-			# else:
-			# 	rows = driver.find_elements_by_css_selector('.z-listbox-body tbody:nth-child(2) > tr')
-			# 	self.parseResponses(rows)
+			return self.responses
 
 	def parseResponses(self, rows):
 		print('Parse responses..')
@@ -83,4 +79,6 @@ class Manifest(object):
 			btnKrm = cols[10].find_element_by_css_selector('button').get_attribute('id')
 			dataResponse = [jnResp, noBc10, noBc11, tgResp, btnKrm]
 			self.responses.append(dataResponse)
-		print(self.responses)
+	
+	def sortResponses(self):
+		self.responses.sort(key = lambda x: datetime.strptime(x[3], '%d-%m-%Y %H:%M').strftime('%Y%m%d%H%M'), reverse = True)
