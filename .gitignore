@@ -1,0 +1,10 @@
+# folder to be ignored
+/.pytest_cache/
+/page/
+/test/
+__pycache__
+
+
+# filetype to be ignored
+*.log
+*.pyc
