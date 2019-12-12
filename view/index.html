@@ -140,45 +140,18 @@
         				<h2>Respon</h2>
         			</div>
         			<div class="result-content">
-        				<table class="table table-striped">
+        				<table id="table-result" class="table table-striped">
         					<thead>
         						<tr>
-        							<th>no</th>
-        							<th>respon</th>
-        							<th>tanggal</th>
+        							<th>Tanggal Respon</th>
+        							<th>Jenis Respon</th>
+        							<th>No BC 1.0</th>
+                                    <th>No BC 1.1</th>
+                                    <th></th>
         						</tr>
         					</thead>
         					<tbody>
-        						<tr>
-        							<td>1</td>
-        							<td>21</td>
-        							<td>2019-21</td>
-        						</tr>
-        						<tr>
-        							<td>2</td>
-        							<td>22</td>
-        							<td>2019-22</td>
-        						</tr>
-        						<tr>
-        							<td>3</td>
-        							<td>23</td>
-        							<td>2019-23</td>
-        						</tr>
-        						<tr>
-        							<td>1</td>
-        							<td>21</td>
-        							<td>2019-21</td>
-        						</tr>
-        						<tr>
-        							<td>2</td>
-        							<td>22</td>
-        							<td>2019-22</td>
-        						</tr>
-        						<tr>
-        							<td>3</td>
-        							<td>23</td>
-        							<td>2019-23</td>
-        						</tr>
+
         					</tbody>
         				</table>
         			</div>
@@ -236,12 +209,29 @@
 	    		data: {'tglawal': tglawal, 'tglakhir': tglakhir, 'aju': noaju},
 	    		success: function(result) {
 	    			console.log(result)
+                    displayTable(result)
 	    		}
 	    	})
     	})
     	
     	function displayTable(result) {
-    		
+            rows = ''
+    		$.each(result, function (index, value) {
+                row = `
+                    <tr>
+                        <th>${value[3]}</th>
+                        <th>${value[0]}</th>
+                        <th>${value[1]}</th>
+                        <th>${value[2]}</th>
+                        <th>
+                            <a href="${value[4]}">Kirim</a>
+                        </th>
+                    </tr>
+                `
+                rows += row
+            })
+            console.log(rows)
+            $('#table-result > tbody').html(rows)
     	}
     </script>
 
