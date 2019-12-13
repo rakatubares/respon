@@ -36,7 +36,12 @@
     </div>  
     <!-- ***** Preloader End ***** -->
     
-    
+    <!-- ***** Message Start ***** -->
+		<div id="my-message" class="alert alert-primary col-md-8">
+			<!-- message from click response -->
+		</div>
+		<!-- ***** Message End ***** -->
+
     <!-- ***** Header Area Start ***** -->
     <header class="header-area header-sticky">
         <div class="container">
@@ -141,15 +146,15 @@
         			</div>
         			<div class="result-content">
         				<table id="table-result" class="table table-striped">
-        					<thead>
-        						<tr>
-        							<th>Tanggal Respon</th>
-        							<th>Jenis Respon</th>
-        							<th>No BC 1.0</th>
-                                    <th>No BC 1.1</th>
-                                    <th></th>
-        						</tr>
-        					</thead>
+									<thead>
+										<tr>
+											<th>Tanggal Respon</th>
+											<th>Jenis Respon</th>
+											<th>No BC 1.0</th>
+											<th>No BC 1.1</th>
+											<th></th>
+										</tr>
+									</thead>
         					<tbody>
 
         					</tbody>
@@ -161,20 +166,20 @@
     </section>
     <!-- ***** Contact Us Area Ends ***** -->
     
-    <!-- ***** Footer Start ***** -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-xs-12">
-                    <div class="left-text-content">
-                        <p>Copyright &copy; <a href="https://sh1.tech">Duktek Soetta</a> 
-                        
-                        - Design: <a rel="nofollow noopener" href="https://templatemo.com">TemplateMo</a></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+		<!-- ***** Footer Start ***** -->
+		<footer>
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-6 col-xs-12">
+						<div class="left-text-content">
+							<p>Copyright &copy; <a href="https://sh1.tech">Duktek Soetta</a> 
+
+							- Design: <a rel="nofollow noopener" href="https://templatemo.com">TemplateMo</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
     
 
     <!-- jQuery -->
@@ -197,9 +202,13 @@
     <!-- Global Init -->
     <script src="assets/js/custom.js"></script>
 
+    <!-- My Script -->
+    <script src="assets/js/myscript.js"></script>
+
     <script type="text/javascript">
     	$('#request-respon').submit(function(e) {
     		e.preventDefault();
+    		$('#table-result > tbody').empty();
     		tglawal = $('input[name="tglawal"]').val()
     		tglakhir = $('input[name="tglakhir"]').val()
     		noaju = $('input[name="noaju"]').val()
@@ -208,31 +217,71 @@
 	    		method: 'GET',
 	    		data: {'tglawal': tglawal, 'tglakhir': tglakhir, 'aju': noaju},
 	    		success: function(result) {
-	    			console.log(result)
-                    displayTable(result)
+	    			if (result[0] == 'respon') {
+		    			displayTable(result[1]);	
+	    			} else {
+	    				$('#my-message').removeClass('alert-primary');
+							$('#my-message').addClass('alert-danger');
+							$('#my-message').html(result[1]);
+							$('#my-message').css('display', 'block');
+							$('#my-message').delay(3000).fadeOut();
+	    			}
 	    		}
 	    	})
     	})
+
+		  $("#noaju").inputFilter(function(value) {
+		    return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+		  });
     	
     	function displayTable(result) {
-            rows = ''
+				rows = ''
     		$.each(result, function (index, value) {
-                row = `
-                    <tr>
-                        <th>${value[3]}</th>
-                        <th>${value[0]}</th>
-                        <th>${value[1]}</th>
-                        <th>${value[2]}</th>
-                        <th>
-                            <a href="${value[4]}">Kirim</a>
-                        </th>
-                    </tr>
-                `
-                rows += row
-            })
-            console.log(rows)
-            $('#table-result > tbody').html(rows)
-    	}
+					row = `
+						<tr>
+							<th>${value[3]}</th>
+							<th>${value[0]}</th>
+							<th>${value[1]}</th>
+							<th>${value[2]}</th>
+							<th>
+								<a href="#" class="btn-action" id="${value[4]}">Kirim</a>
+							</th>
+						</tr>
+					`
+					rows += row;
+				})
+				$('#table-result > tbody').html(rows);
+			}
+
+			$(document).on('click', '.btn-action', function(e) {
+				e.preventDefault();
+				idButton = $(this).attr('id');
+				$.ajax({
+					url: 'click',
+					method: 'GET',
+					data: {'id': idButton},
+					success: function(result) {
+						console.log(result);
+						if (result[0] == 0) {
+							$('#my-message').removeClass('alert-primary');
+							$('#my-message').addClass('alert-danger');
+						} else {
+							$('#my-message').removeClass('alert-danger');
+							$('#my-message').addClass('alert-primary');
+						}
+						$('#my-message').html(result[1]);
+						$('#my-message').css('display', 'block');
+						$('#my-message').delay(3000).fadeOut();
+					},
+					error: function() {
+						$('#my-message').removeClass('alert-primary');
+						$('#my-message').addClass('alert-danger');
+						$('#my-message').html('Server eror, silakan hubungi Duktek Soetta');
+						$('#my-message').css('display', 'block');
+						$('#my-message').delay(3000).fadeOut();
+					}
+				});
+    	});
     </script>
 
   </body>

@@ -1707,3 +1707,13 @@ portfolio
 #result .section-heading {
   text-align: center;
 }
+
+#my-message {
+  position: fixed; 
+  top: 10%; 
+  left: 50%; 
+  transform: translate(-50%, 0); 
+  z-index: 100; 
+  text-align: center; 
+  display: none;
+}
