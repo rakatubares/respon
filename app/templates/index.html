@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
+    <head>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -9,21 +9,21 @@
     <meta name="author" content="">
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
 
-    <title>Breezed HTML Bootstrap Template</title>
+    <title>my app</title>
 
     <!-- Additional CSS Files -->
-    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 
-    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.css') }}">
 
-    <link rel="stylesheet" href="assets/css/templatemo-breezed.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/templatemo-breezed.css') }}">
 
-    <link rel="stylesheet" href="assets/css/owl-carousel.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/owl-carousel.css') }}">
 
-    <link rel="stylesheet" href="assets/css/lightbox.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lightbox.css') }}">
 
     </head>
-    
+
     <body>
     
     <!-- ***** Preloader Start ***** -->
@@ -75,7 +75,7 @@
           <!-- Item -->
           <div class="item">
             <div class="img-fill">
-                <img src="assets/images/slide-02.jpg" alt="">
+                <img src="{{ url_for('static', filename='images/slide-02.jpg') }}" alt="">
                 <div class="text-content">
                   <h5>Kirim Ulang Respon</h5>
                   <div id="subscribe" class="container">
@@ -94,7 +94,7 @@
 		                    	</div>
 	                    		<div class="col-md-10 col-sm-12">
 	                          <fieldset>
-	                            <input name="noaju" type="text" id="noaju" placeholder="Isikan nomor aju lengkap..." required="">
+	                            <input name="noaju" type="text" id="noaju" placeholder="Isikan nomor aju lengkap..." required="" minlength="26" maxlength="26">
 	                          </fieldset>
 	                        </div>
 	                    	</div>
@@ -183,27 +183,27 @@
     
 
     <!-- jQuery -->
-    <script src="assets/js/jquery-2.1.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery-2.1.0.min.js') }}"></script>
 
     <!-- Bootstrap -->
-    <script src="assets/js/popper.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/popper.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
     <!-- Plugins -->
-    <script src="assets/js/owl-carousel.js"></script>
-    <script src="assets/js/scrollreveal.min.js"></script>
-    <script src="assets/js/waypoints.min.js"></script>
-    <script src="assets/js/jquery.counterup.min.js"></script>
-    <script src="assets/js/imgfix.min.js"></script> 
-    <script src="assets/js/slick.js"></script> 
-    <script src="assets/js/lightbox.js"></script> 
-    <script src="assets/js/isotope.js"></script> 
+    <script src="{{ url_for('static', filename='js/owl-carousel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scrollreveal.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/waypoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.counterup.min') }}.js"></script>
+    <script src="{{ url_for('static', filename='js/imgfix.min.js') }}"></script> 
+    <script src="{{ url_for('static', filename='js/slick.js') }}"></script> 
+    <script src="{{ url_for('static', filename='js/lightbox.js') }}"></script> 
+    <script src="{{ url_for('static', filename='js/isotope.js') }}"></script> 
     
     <!-- Global Init -->
-    <script src="assets/js/custom.js"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 
     <!-- My Script -->
-    <script src="assets/js/myscript.js"></script>
+    <script src="{{ url_for('static', filename='js/myscript.js') }}"></script>
 
     <script type="text/javascript">
     	$('#request-respon').submit(function(e) {

@@ -1,10 +1,16 @@
-# folder to be ignored
-/.pytest_cache/
-/page/
-/test/
-__pycache__
+venv/
 
-
-# filetype to be ignored
-*.log
 *.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
+
+*.log

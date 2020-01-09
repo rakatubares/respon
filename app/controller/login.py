@@ -2,6 +2,7 @@ import sys
 sys.path.append("..")
 
 import getpass
+import shortuuid
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import UnexpectedAlertPresentException
@@ -11,15 +12,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
-import apps.config as cfg
+# import apps.config as cfg
+from app import app, db
+from app.models import SignIn
 
 class Login(object):
 	"""docstring for Login"""
-	def __init__(self, url='http://ceisa.customs.go.id'):
+	def __init__(self, url='http://ceisa.customs.go.id', ceisa_app='sso'):
 		super(Login, self).__init__()
 		self.url = url
+		self.ceisa_app = ceisa_app
 		self.driver = ''
 		self.is_login = False
+		self.login_id = shortuuid.uuid()
 
 	def login(self):
 
@@ -29,13 +34,19 @@ class Login(object):
 				self.driver.find_element_by_id('txtUserName')
 			except AttributeError:
 				self.openLoginPage()
-			finally:
+			else:
 				self.inputUserPassword()
 		else:
 			return self.driver
 
 	def openLoginPage(self):
 		print('Open login page..')
+
+		# Create activity id in database
+		act = SignIn(hash=self.login_id, status='start')
+		db.session.add(act)
+		db.session.commit()
+
 		options = Options()
 		# options.add_argument('--headless')
 
@@ -53,8 +64,8 @@ class Login(object):
 		submitButton = self.driver.find_element_by_id("btnSubmit")
 
 		# Input username and password
-		userName = cfg.user['username']
-		password = cfg.user['password']
+		userName = app.config['CEISA_USER']
+		password = app.config['CEISA_PASSWORD']
 
 		inputUserName.send_keys(userName)
 		inputUserPass.send_keys(password)
@@ -69,6 +80,11 @@ class Login(object):
 				menu = EC.presence_of_element_located((By.CLASS_NAME, 'z-menubar-hor'))
 			WebDriverWait(self.driver, timeout).until(menu)
 			self.is_login = True
+			
+			# Store logged in status in database
+			act = SignIn(hash=self.login_id, status='logged in')
+			db.session.add(act)
+			db.session.commit()
 		except TimeoutException:
 			print("Timed out waiting for page to load")
 		except UnexpectedAlertPresentException:

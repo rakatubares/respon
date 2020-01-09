@@ -1,13 +1,9 @@
-import flask
-# from bs4 import BeautifulSoup
 from datetime import datetime
 from flask import render_template, request, jsonify
 from selenium.common.exceptions import InvalidSessionIdException, TimeoutException, WebDriverException
 
-from controller.app.manifest import Manifest
-
-app = flask.Flask(__name__, template_folder='view', static_folder='assets')
-app.config["DEBUG"] = True
+from app import app
+from app.controller.app.manifest import Manifest
 
 def validate(noAju):
 	noAju = ''.join(filter(str.isdigit, noAju))
@@ -19,11 +15,12 @@ def validate(noAju):
 def initiateManifest():
 	print('Initiate manifest..')
 
+	global manifest
 	global driverManifest
-	driverManifest = Manifest()
-	driverManifest.openMenu()
+	manifest = Manifest()
+	driverManifest = manifest.openMenu()
 
-def manifest(tglAwal, tglAkhir, noAju):
+def getResponseManifest(tglAwal, tglAkhir, noAju):
 	respon = ''
 	format1 = '%Y-%m-%d'
 	format2 = '%d%m%y'
@@ -36,15 +33,31 @@ def manifest(tglAwal, tglAkhir, noAju):
 	else:
 		noAju = isvalid[1]
 
-	while respon == '':
-		try:
-			respon = driverManifest.getResponses(tglAwal, tglAkhir, noAju)
-		except (NameError, InvalidSessionIdException, WebDriverException):
-			if 'driverManifest' in globals():
-				driverManifest.close()
-			initiateManifest()
+	# while respon == '':
+	# 	try:
+	# 		if driverManifest not in globals():
+	# 			initiateManifest()
+	# 		respon = manifest.getResponses(tglAwal, tglAkhir, noAju)
+	# 	except (NameError, InvalidSessionIdException) as e:
+	# 		if 'driverManifest' in globals():
+	# 			driverManifest.close()
+	# 		initiateManifest()
+			# raise e
+
+			# try:
+			# 	pass
+			# except Exception as e:
+			# 	raise e
+			# else:
+			# 	pass
+
+	if 'driverManifest' not in globals():
+		initiateManifest()
+	respon = manifest.getResponses(tglAwal, tglAkhir, noAju)
 
 	return ['respon', respon]
+	# manifest.getResponses(tglAwal, tglAkhir, noAju)
+	# return None
 
 @app.route('/')
 def index():
@@ -52,12 +65,10 @@ def index():
 
 @app.route('/respon', methods=['GET'])
 def respon():
-	respon = manifest(request.args['tglawal'], request.args['tglakhir'], request.args['aju'])
+	respon = getResponseManifest(request.args['tglawal'], request.args['tglakhir'], request.args['aju'])
 	return jsonify(respon)
 
 @app.route('/click', methods=['GET'])
 def click():
 	msg = driverManifest.sendResponse(request.args['id'])
 	return jsonify(msg)
-
-app.run()
