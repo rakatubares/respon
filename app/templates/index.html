@@ -84,49 +84,54 @@
 		                    <div class="row" style="margin-bottom: 15px;">
 		                    	<div class="col-md-2 col-sm-12">
 		                    		<fieldset>
-	                            <select name="jenis">
-	                            	<option selected="" disabled="" hidden="">Pilih Aju</option>
-	                            	<option>PIB</option>
-	                            	<option>PEB</option>
-	                            	<option>Manifest</option>
-	                            </select>
-	                          </fieldset>
+			                            <select name="jenis">
+			                            	<option selected="" disabled="" hidden="">Pilih Aju</option>
+			                            	<option>PIB</option>
+			                            	<option>PEB</option>
+			                            	<option>Manifest</option>
+			                            </select>
+			                        </fieldset>
 		                    	</div>
-	                    		<div class="col-md-10 col-sm-12">
-	                          <fieldset>
-	                            <input name="noaju" type="text" id="noaju" placeholder="Isikan nomor aju lengkap..." required="" minlength="26" maxlength="26">
-	                          </fieldset>
-	                        </div>
+	                    		<div class="col-md-9 col-sm-10">
+			                        <fieldset>
+			                            <input name="noaju" type="text" id="noaju" placeholder="Isikan nomor aju lengkap..." required="" minlength="26" maxlength="26">
+			                        </fieldset>
+		                        </div>
+		                        <div class="col-md-1 col-sm-2">
+									<fieldset>
+										<button type="submit" id="form-submit" class="main-button"><i class="fa fa-search fa-lg"></i></button>
+									</fieldset>
+		                        </div>
 	                    	</div>
-                        <div class="row">
-                        	<div class="col-md-2 col-sm-6">
-                        		<label>
-	                        		Tanggal respon	
-                        		</label>
-                        	</div>
-                        	<div class="col-md-4 col-sm-6">
-                        		<fieldset>
-                        			<input type="date" name="tglawal">
-                        		</fieldset>
-                        	</div>
-                        	<div class="col-md-1 col-sm-6">
-                        		<label>
-                        			s.d.
-                        		</label>
-                        	</div>
-                        	<div class="col-md-4 col-sm-6">
-                        		<fieldset>
-                        			<input type="date" name="tglakhir">
-                        		</fieldset>
-                        	</div>
-                        	<div class="col-md-1 col-sm-12">
-	                          <fieldset>
-	                            <button type="submit" id="form-submit" class="main-button"><i class="fa fa-search fa-lg"></i></button>
-	                          </fieldset>
-	                        </div>
-                        </div>
+<!-- 	                        <div class="row">
+	                        	<div class="col-md-2 col-sm-6">
+	                        		<label>
+		                        		Tanggal respon	
+	                        		</label>
+	                        	</div>
+	                        	<div class="col-md-4 col-sm-6">
+	                        		<fieldset>
+	                        			<input type="date" name="tglawal">
+	                        		</fieldset>
+	                        	</div>
+	                        	<div class="col-md-1 col-sm-6">
+	                        		<label>
+	                        			s.d.
+	                        		</label>
+	                        	</div>
+	                        	<div class="col-md-4 col-sm-6">
+	                        		<fieldset>
+	                        			<input type="date" name="tglakhir">
+	                        		</fieldset>
+	                        	</div>
+	                        	<div class="col-md-1 col-sm-12">
+		                          <fieldset>
+		                            <button type="submit" id="form-submit" class="main-button"><i class="fa fa-search fa-lg"></i></button>
+		                          </fieldset>
+		                        </div>
+	                        </div> -->
 	                    </div>
-		                </form>
+	                </form>
                   </div>
                 </div>
             </div>
@@ -146,15 +151,21 @@
         			</div>
         			<div class="result-content">
         				<table id="table-result" class="table table-striped">
-									<thead>
-										<tr>
-											<th>Tanggal Respon</th>
-											<th>Jenis Respon</th>
-											<th>No BC 1.0</th>
-											<th>No BC 1.1</th>
-											<th></th>
-										</tr>
-									</thead>
+							<!-- <thead>
+								<tr>
+									<th>Tanggal Respon</th>
+									<th>Jenis Respon</th>
+									<th>No BC 1.0</th>
+									<th>No BC 1.1</th>
+									<th></th>
+								</tr>
+							</thead> -->
+							<thead>
+								<tr>
+									<th>Waktu</th>
+									<th>Status</th>
+								</tr>
+							</thead>
         					<tbody>
 
         					</tbody>
@@ -166,20 +177,21 @@
     </section>
     <!-- ***** Contact Us Area Ends ***** -->
     
-		<!-- ***** Footer Start ***** -->
-		<footer>
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-6 col-xs-12">
-						<div class="left-text-content">
-							<p>Copyright &copy; <a href="https://sh1.tech">Duktek Soetta</a> 
+	<!-- ***** Footer Start ***** -->
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-6 col-xs-12">
+					<div class="left-text-content">
+						<p>Copyright &copy; <a href="https://sh1.tech">Duktek Soetta</a> 
 
-							- Design: <a rel="nofollow noopener" href="https://templatemo.com">TemplateMo</a></p>
-						</div>
+						- Design: <a rel="nofollow noopener" href="https://templatemo.com">TemplateMo</a></p>
 					</div>
+                    <div id="log"></div>
 				</div>
 			</div>
-		</footer>
+		</div>
+	</footer>
     
 
     <!-- jQuery -->
@@ -205,7 +217,7 @@
     <!-- My Script -->
     <script src="{{ url_for('static', filename='js/myscript.js') }}"></script>
 
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
     	$('#request-respon').submit(function(e) {
     		e.preventDefault();
     		$('#table-result > tbody').empty();
@@ -282,6 +294,57 @@
 					}
 				});
     	});
+    </script> -->
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+
+            var socket = io();
+
+            socket.on('my_response', function(msg, cb) {
+                $('#table-result > tbody').append(`<tr><td>${msg.time}</td><td>${msg.data}</td></tr>`);
+                if (cb)
+                    cb();
+                if (msg.is_end == true) {
+                    $('form#request-respon button#form-submit > i').removeClass('fa-spinner fa-pulse')
+                    $('form#request-respon button#form-submit > i').addClass('fa-search')
+                    $('form#request-respon button#form-submit').prop('disabled', false)
+                };
+            });
+
+            $('form#request-respon').submit(function(event) {
+            	$('#table-result > tbody').empty();
+            	$('form#request-respon button#form-submit > i').toggleClass('fa-spinner fa-pulse fa-search')
+            	$('form#request-respon button#form-submit').prop('disabled', true)
+                socket.emit('request_respon', {data: $('#noaju').val()});
+                return false;
+            });
+            // $('form#broadcast').submit(function(event) {
+            //     socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
+            //     return false;
+            // });
+            // $('form#join').submit(function(event) {
+            //     socket.emit('join', {room: $('#join_room').val()});
+            //     return false;
+            // });
+            // $('form#leave').submit(function(event) {
+            //     socket.emit('leave', {room: $('#leave_room').val()});
+            //     return false;
+            // });
+            // $('form#send_room').submit(function(event) {
+            //     socket.emit('my_room_event', {room: $('#room_name').val(), data: $('#room_data').val()});
+            //     return false;
+            // });
+            // $('form#close').submit(function(event) {
+            //     socket.emit('close_room', {room: $('#close_room').val()});
+            //     return false;
+            // });
+            // $('form#disconnect').submit(function(event) {
+            //     socket.emit('disconnect_request');
+            //     return false;
+            // });
+        });
     </script>
 
   </body>

@@ -1,12 +1,13 @@
-import time
+import threading, time
 from bs4 import BeautifulSoup
 from datetime import datetime
+from flask_socketio import emit
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from app import app, db
+from app import app, db, socketio
 from app.controller import preprocess as pre
 from app.controller.login import Login
 from app.models import Request, Status
@@ -17,6 +18,8 @@ class Manifest(object):
 		super(Manifest, self).__init__()
 		self.url = 'http://manif-in.customs.go.id/beacukai-manifes'
 		self.ceisa_app = 'manifest'
+		self.is_idle = True
+		self.searches = []
 		self.req_id = 0
 		self.driver = ''
 		self.responses = []
@@ -25,14 +28,17 @@ class Manifest(object):
 			21: 'Manifest Inward',
 			31: 'Manifest Outward'
 		}
+		self.openMenu()
+		self.alwaysOn()
 		
 	def openPage(self):
 		log = Login(self.url, self.ceisa_app)
 		self.driver = log.login()
-		return self.driver
+		# return self.driver
 
 	def openMenu(self):
-		self.driver = self.openPage()
+		self.is_idle = False
+		self.openPage()
 
 		print('Open menu..')
 		menuUtility = self.driver.find_element_by_css_selector('.z-menu:nth-child(4) button')
@@ -42,16 +48,18 @@ class Manifest(object):
 		menuRespon.click()
 
 		pre.waitLoading(self.driver)
-		return self.driver
+		self.is_idle = True
 
-	def getResponses(self, tglAwal, tglAkhir, noAju):
+	def getResponses(self, tglAwal, noAju):
+		self.is_idle = False
+
 		# Create request id in database
 		req = Request(app=self.ceisa_app, aju=noAju)
 		db.session.add(req)
 		db.session.commit()
 		self.req_id = req.id
 
-		# Store login start in status table
+		# Store request start in status table
 		sta = Status(id_request=self.req_id, status='start')
 		db.session.add(sta)
 		db.session.commit()
@@ -63,23 +71,19 @@ class Manifest(object):
 			print('Timeout to load page..')
 
 			# Store error in status table
-			sta = Status(id_request=self.req_id, status='Failed to load page')
-			db.session.add(sta)
-			db.session.commit()
+			msg = 'Gagal membuka halaman pencarian. Coba beberapa saat lagi.'
+			is_end = True
+			self.updateStatus(msg, is_end)
 		except Exception as e:
 			raise e
 		else:
 			print('Collect responses..')
 
 			# Update status table
-			sta = Status(id_request=self.req_id, status='Collecting responses')
-			db.session.add(sta)
-			db.session.commit()
+			msg = 'Mencari respon'
+			self.updateStatus(msg)
 
-			inputTgl = self.driver.find_elements_by_css_selector('.z-datebox-inp')
-			inputTglAwal = inputTgl[0]
-			inputTglAkhir = inputTgl[1]
-
+			inputTglAwal = self.driver.find_element_by_css_selector('.z-datebox-inp')
 			inputText = self.driver.find_elements_by_css_selector('.z-textbox')
 			inputAju = inputText[1]
 
@@ -89,10 +93,7 @@ class Manifest(object):
 			inputTglAwal.clear()
 			inputTglAwal.click()
 			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
-			# Handling input tgl akhir
-			inputTglAkhir.clear()
-			inputTglAkhir.click()
-			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAkhir, tglAkhir)
+
 			# Handling input aju
 			inputAju.clear()
 			inputAju.send_keys(noAju)
@@ -103,7 +104,7 @@ class Manifest(object):
 				errorBox = ''
 				errorBox = self.driver.find_element_by_xpath('//div[contains(@class, "z-messagebox")]/span[contains(@class, "z-label") and contains(., "Unknown exception")]')
 				while 'errorBox' != '':
-					getResponses(tglAwal, tglAkhir, noAju)
+					self.getResponses(tglAwal, tglAkhir, noAju)
 			except NoSuchElementException:
 				print('catch element')
 				rows = self.driver.find_elements_by_css_selector('.z-listbox-body tbody:nth-child(2) > tr')
@@ -111,10 +112,7 @@ class Manifest(object):
 				self.updateRequest()
 				self.chooseResponses()
 
-				return self.responses
-			# except Exception as e:
-			# 	print('catch general')
-				# raise e
+		self.is_idle = True
 
 	def parseResponses(self, rows):
 		print('Parse responses..')
@@ -168,9 +166,13 @@ class Manifest(object):
 		if len(responsesToSend) > 0:
 			for rs in responsesToSend:
 				self.sendResponse2(rs)
+			msg = 'Selesai'
+			is_end = True
+			self.updateStatus(msg, is_end)
 		else:
 			msg = 'Aju ini belum mendapat respon RKSP atau Manifest'
-			self.updateStatus(msg)
+			is_end = True
+			self.updateStatus(msg, is_end)
 
 	def sendResponse2(self, kdRespon):
 		print(f'Send response {kdRespon}..')
@@ -203,7 +205,24 @@ class Manifest(object):
 			msg = f'Respon {self.ur_respon[r[0]]} no {r[2]} telah dikirim'
 			self.updateStatus(msg)
 
-	def updateStatus(self, msg):
+	def updateStatus(self, msg, end=False):
 		sta = Status(id_request=self.req_id, status=msg)
 		db.session.add(sta)
 		db.session.commit()
+		emit('my_response', {'data': msg, 'time': self.getTime(), 'is_end': end})
+
+	def getTime(self):
+		now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+		return now
+
+	def alwaysOn(self):
+		threading.Timer(300, self.alwaysOn).start()
+		self.is_idle = False
+		checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
+		WebDriverWait(self.driver, 10).until(checkInputTgl)
+		print('always on')
+		btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
+		btnDate.click()
+		time.sleep(1)
+		btnDate.click()
+		self.is_idle = True

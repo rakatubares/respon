@@ -231,9 +231,14 @@ button.main-button {
   transition: all 0.3s ease 0s;
 }
 
-button.main-button:hover {
+button.main-button:hover:enabled {
   color: #fff;
   background-color: #5fb759;
+}
+
+button.main-button:disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
 }
 
 button.main-button-icon {

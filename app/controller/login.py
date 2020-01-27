@@ -4,9 +4,9 @@ sys.path.append("..")
 import getpass
 import shortuuid
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -50,8 +50,11 @@ class Login(object):
 		options = Options()
 		# options.add_argument('--headless')
 
+		caps = DesiredCapabilities().FIREFOX
+		caps["pageLoadStrategy"] = "eager"
+
 		# create a new Firefox session
-		self.driver = webdriver.Firefox(options=options)
+		self.driver = webdriver.Firefox(options=options, capabilities=caps)
 		self.driver.get(self.url)
 		login_form = EC.presence_of_element_located((By.ID, 'txtUserName'))
 		WebDriverWait(self.driver, 30).until(login_form)
