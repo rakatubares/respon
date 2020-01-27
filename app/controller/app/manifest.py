@@ -19,7 +19,7 @@ class Manifest(object):
 		self.url = 'http://manif-in.customs.go.id/beacukai-manifes'
 		self.ceisa_app = 'manifest'
 		self.is_idle = True
-		self.searches = []
+		# self.searches = []
 		self.req_id = 0
 		self.driver = ''
 		self.responses = []
@@ -183,6 +183,10 @@ class Manifest(object):
 		print(clickResponses)
 		r = clickResponses[0]
 		
+		if kdRespon == 11:
+			noRespon = r[2]
+		else:
+			noRespon = r[3]
 		idBtn = '#' + r[4]
 		sendBtn = self.driver.find_element_by_css_selector(idBtn)
 		sendBtn.click()
@@ -202,7 +206,7 @@ class Manifest(object):
 			WebDriverWait(self.driver, 120).until(closeMaskConfirmModal)
 			
 			# Update status table
-			msg = f'Respon {self.ur_respon[r[0]]} no {r[2]} telah dikirim'
+			msg = f'Respon {self.ur_respon[r[0]]} no {noRespon} telah dikirim'
 			self.updateStatus(msg)
 
 	def updateStatus(self, msg, end=False):

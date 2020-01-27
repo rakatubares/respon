@@ -64,7 +64,7 @@ def getResponseManifest(tglAwal, tglAkhir, noAju):
 def validate2(noAju):
 	isvalid = False
 	tglAwal = ''
-	# noAju = ''.join(filter(str.isdigit, aju))
+
 	if len(noAju) != 26:
 		emit('my_response', {'data': 'Isikan no aju lengkap 26 digit', 'time': getTime(), 'is_end': True})
 	else:
@@ -109,11 +109,6 @@ def respon():
 def click():
 	msg = manifest.sendResponse(request.args['id'])
 	return jsonify(msg)
-
-# @socketio.on('connect')
-# def onConnect():
-# 	currentSocketId = request.sid
-# 	emit('my_response', {'data': currentSocketId, 'time': getTime()})
 
 @socketio.on('request_respon')
 def requestRespon(aju):

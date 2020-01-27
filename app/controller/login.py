@@ -57,7 +57,7 @@ class Login(object):
 		self.driver = webdriver.Firefox(options=options, capabilities=caps)
 		self.driver.get(self.url)
 		login_form = EC.presence_of_element_located((By.ID, 'txtUserName'))
-		WebDriverWait(self.driver, 30).until(login_form)
+		WebDriverWait(self.driver, 120).until(login_form)
 
 	def inputUserPassword(self):
 		print('Input login details..')
@@ -75,13 +75,13 @@ class Login(object):
 		submitButton.click()
 
 		# Try login
-		timeout = 30
+		# timeout = 30
 		try:
 			if self.url == 'http://ceisa.customs.go.id':
 				menu = EC.presence_of_element_located((By.ID, 'divApp'))
 			else:
 				menu = EC.presence_of_element_located((By.CLASS_NAME, 'z-menubar-hor'))
-			WebDriverWait(self.driver, timeout).until(menu)
+			WebDriverWait(self.driver, 120).until(menu)
 			self.is_login = True
 			
 			# Store logged in status in database
