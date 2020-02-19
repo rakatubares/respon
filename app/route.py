@@ -100,15 +100,15 @@ def getTime():
 def index():
 	return render_template('index.html')
 
-@app.route('/respon', methods=['GET'])
-def respon():
-	respon = getResponseManifest(request.args['tglawal'], request.args['tglakhir'], request.args['aju'])
-	return jsonify(respon)
+# @app.route('/respon', methods=['GET'])
+# def respon():
+# 	respon = getResponseManifest(request.args['tglawal'], request.args['tglakhir'], request.args['aju'])
+# 	return jsonify(respon)
 
-@app.route('/click', methods=['GET'])
-def click():
-	msg = manifest.sendResponse(request.args['id'])
-	return jsonify(msg)
+# @app.route('/click', methods=['GET'])
+# def click():
+# 	msg = manifest.sendResponse(request.args['id'])
+# 	return jsonify(msg)
 
 @socketio.on('request_respon')
 def requestRespon(aju):

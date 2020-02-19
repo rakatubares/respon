@@ -41,10 +41,13 @@ class Manifest(object):
 		self.openPage()
 
 		print('Open menu..')
-		menuUtility = self.driver.find_element_by_css_selector('.z-menu:nth-child(4) button')
+		menuUtility = self.driver.find_element_by_xpath('//button[@class = "z-menu-btn" and contains(., "Utility")]')
 		menuUtility.click()
 
-		menuRespon = self.driver.find_element_by_css_selector('.z-menu-popup li:nth-child(1) a')
+		checkMenuBrowse = EC.presence_of_element_located((By.XPATH, '//ul[@class = "z-menu-popup-cnt"]//a[.= " Browse Respon"]'))
+		WebDriverWait(self.driver, 30).until(checkMenuBrowse)
+
+		menuRespon = self.driver.find_element_by_xpath('//ul[@class = "z-menu-popup-cnt"]//a[.= " Browse Respon"]')
 		menuRespon.click()
 
 		pre.waitLoading(self.driver)
