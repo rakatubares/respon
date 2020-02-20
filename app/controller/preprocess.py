@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-def waitLoading(driver):
+def waitLoading(driver, timeout=10):
 	try:
 		loading = EC.presence_of_element_located((By.CLASS_NAME, "z-loading-indicator"))
 		WebDriverWait(driver, 1).until(loading)
@@ -12,6 +12,6 @@ def waitLoading(driver):
 	else:
 		try:
 			closeLoading = EC.invisibility_of_element_located((By.CLASS_NAME, 'z-loading-indicator'))
-			WebDriverWait(driver, 10).until(closeLoading)
+			WebDriverWait(driver, timeout).until(closeLoading)
 		except TimeoutException:
 			print('Loading too long..')
