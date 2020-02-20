@@ -109,11 +109,20 @@ class Manifest(object):
 				while 'errorBox' != '':
 					self.getResponses(tglAwal, tglAkhir, noAju)
 			except NoSuchElementException:
-				print('catch element')
-				rows = self.driver.find_elements_by_css_selector('.z-listbox-body tbody:nth-child(2) > tr')
-				self.parseResponses(rows)
-				self.updateRequest()
-				self.chooseResponses()
+				try:
+					boxNotFound = self.driver.find_element_by_xpath('//div[contains(@class, "z-messagebox")]/span[contains(@class, "z-label") and .= "data tidak ditemukan"]')
+				except NoSuchElementException:
+					print('catch element')
+					rows = self.driver.find_elements_by_css_selector('.z-listbox-body tbody:nth-child(2) > tr')
+					self.parseResponses(rows)
+					self.updateRequest()
+					self.chooseResponses()
+				else:
+					btnOkNotFound = self.driver.find_element_by_xpath('//div[contains(@class, "myMultiMessageBox z-panel") and //span[contains(@class, "z-label") and .= "data tidak ditemukan"]]//button[@class = "z-messagebox-btn z-button-os" and .= "OK"]')
+					btnOkNotFound.click()
+					msg = 'Aju tidak ditemukan'
+					is_end = True
+					self.updateStatus(msg, is_end)
 
 		self.is_idle = True
 
