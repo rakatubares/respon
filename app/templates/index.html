@@ -36,11 +36,11 @@
     </div>  
     <!-- ***** Preloader End ***** -->
     
-    <!-- ***** Message Start ***** -->
-		<div id="my-message" class="alert alert-primary col-md-8">
-			<!-- message from click response -->
-		</div>
-		<!-- ***** Message End ***** -->
+	<!-- ***** Message Start ***** -->
+	<!-- <div id="my-message" class="alert alert-primary col-md-8"> -->
+		<!-- message from click response -->
+	<!-- </div> -->
+	<!-- ***** Message End ***** -->
 
     <!-- ***** Header Area Start ***** -->
     <header class="header-area header-sticky">
@@ -84,7 +84,7 @@
 		                    <div class="row" style="margin-bottom: 15px;">
 		                    	<div class="col-md-2 col-sm-12">
 		                    		<fieldset>
-			                            <select name="jenis">
+			                            <select name="jenis" id="jnsaju">
 			                            	<option selected="" disabled="" hidden="">Pilih Aju</option>
 			                            	<option>PIB</option>
 			                            	<option>PEB</option>
@@ -187,165 +187,61 @@
 
 						- Design: <a rel="nofollow noopener" href="https://templatemo.com">TemplateMo</a></p>
 					</div>
-                    <div id="log"></div>
+					<div id="log"></div>
 				</div>
 			</div>
 		</div>
 	</footer>
     
 
-    <!-- jQuery -->
-    <script src="{{ url_for('static', filename='js/jquery-2.1.0.min.js') }}"></script>
+		<!-- jQuery -->
+		<script src="{{ url_for('static', filename='js/jquery-2.1.0.min.js') }}"></script>
 
-    <!-- Bootstrap -->
-    <script src="{{ url_for('static', filename='js/popper.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+		<!-- Bootstrap -->
+		<script src="{{ url_for('static', filename='js/popper.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
-    <!-- Plugins -->
-    <script src="{{ url_for('static', filename='js/owl-carousel.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/scrollreveal.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/waypoints.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery.counterup.min') }}.js"></script>
-    <script src="{{ url_for('static', filename='js/imgfix.min.js') }}"></script> 
-    <script src="{{ url_for('static', filename='js/slick.js') }}"></script> 
-    <script src="{{ url_for('static', filename='js/lightbox.js') }}"></script> 
-    <script src="{{ url_for('static', filename='js/isotope.js') }}"></script> 
-    
-    <!-- Global Init -->
-    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+		<!-- Plugins -->
+		<script src="{{ url_for('static', filename='js/owl-carousel.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/scrollreveal.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/waypoints.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/jquery.counterup.min') }}.js"></script>
+		<script src="{{ url_for('static', filename='js/imgfix.min.js') }}"></script> 
+		<script src="{{ url_for('static', filename='js/slick.js') }}"></script> 
+		<script src="{{ url_for('static', filename='js/lightbox.js') }}"></script> 
+		<script src="{{ url_for('static', filename='js/isotope.js') }}"></script> 
 
-    <!-- My Script -->
-    <script src="{{ url_for('static', filename='js/myscript.js') }}"></script>
+		<!-- Global Init -->
+		<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 
-    <!-- <script type="text/javascript">
-    	$('#request-respon').submit(function(e) {
-    		e.preventDefault();
-    		$('#table-result > tbody').empty();
-    		tglawal = $('input[name="tglawal"]').val()
-    		tglakhir = $('input[name="tglakhir"]').val()
-    		noaju = $('input[name="noaju"]').val()
-    		$.ajax({
-	    		url: 'respon',
-	    		method: 'GET',
-	    		data: {'tglawal': tglawal, 'tglakhir': tglakhir, 'aju': noaju},
-	    		success: function(result) {
-	    			if (result[0] == 'respon') {
-		    			displayTable(result[1]);	
-	    			} else {
-	    				$('#my-message').removeClass('alert-primary');
-							$('#my-message').addClass('alert-danger');
-							$('#my-message').html(result[1]);
-							$('#my-message').css('display', 'block');
-							$('#my-message').delay(3000).fadeOut();
-	    			}
-	    		}
-	    	})
-    	})
+		<!-- My Script -->
+		<script src="{{ url_for('static', filename='js/myscript.js') }}"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+		<script type="text/javascript" charset="utf-8">
+			$(document).ready(function() {
 
-		  $("#noaju").inputFilter(function(value) {
-		    return /^\d*$/.test(value);    // Allow digits only, using a RegExp
-		  });
-    	
-    	function displayTable(result) {
-				rows = ''
-    		$.each(result, function (index, value) {
-					row = `
-						<tr>
-							<th>${value[3]}</th>
-							<th>${value[0]}</th>
-							<th>${value[1]}</th>
-							<th>${value[2]}</th>
-							<th>
-								<a href="#" class="btn-action" id="${value[4]}">Kirim</a>
-							</th>
-						</tr>
-					`
-					rows += row;
-				})
-				$('#table-result > tbody').html(rows);
-			}
+				var socket = io();
 
-			$(document).on('click', '.btn-action', function(e) {
-				e.preventDefault();
-				idButton = $(this).attr('id');
-				$.ajax({
-					url: 'click',
-					method: 'GET',
-					data: {'id': idButton},
-					success: function(result) {
-						console.log(result);
-						if (result[0] == 0) {
-							$('#my-message').removeClass('alert-primary');
-							$('#my-message').addClass('alert-danger');
-						} else {
-							$('#my-message').removeClass('alert-danger');
-							$('#my-message').addClass('alert-primary');
-						}
-						$('#my-message').html(result[1]);
-						$('#my-message').css('display', 'block');
-						$('#my-message').delay(3000).fadeOut();
-					},
-					error: function() {
-						$('#my-message').removeClass('alert-primary');
-						$('#my-message').addClass('alert-danger');
-						$('#my-message').html('Server eror, silakan hubungi Duktek Soetta');
-						$('#my-message').css('display', 'block');
-						$('#my-message').delay(3000).fadeOut();
-					}
+				socket.on('my_response', function(msg, cb) {
+					$('#table-result > tbody').append(`<tr><td>${msg.time}</td><td>${msg.data}</td></tr>`);
+					if (cb)
+						cb();
+					if (msg.is_end == true) {
+						$('form#request-respon button#form-submit > i').removeClass('fa-spinner fa-pulse');
+						$('form#request-respon button#form-submit > i').addClass('fa-search');
+						$('form#request-respon button#form-submit').prop('disabled', false);
+					};
 				});
-    	});
-    </script> -->
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready(function() {
+				$('form#request-respon').submit(function(event) {
+					$('#table-result > tbody').empty();
+					$('form#request-respon button#form-submit > i').toggleClass('fa-spinner fa-pulse fa-search');
+					$('form#request-respon button#form-submit').prop('disabled', true);
+					socket.emit('request_respon', {jnsaju: $('#jnsaju').val(), noaju: $('#noaju').val()});
+					return false;
+				});
+			});
+		</script>
 
-            var socket = io();
-
-            socket.on('my_response', function(msg, cb) {
-                $('#table-result > tbody').append(`<tr><td>${msg.time}</td><td>${msg.data}</td></tr>`);
-                if (cb)
-                    cb();
-                if (msg.is_end == true) {
-                    $('form#request-respon button#form-submit > i').removeClass('fa-spinner fa-pulse')
-                    $('form#request-respon button#form-submit > i').addClass('fa-search')
-                    $('form#request-respon button#form-submit').prop('disabled', false)
-                };
-            });
-
-            $('form#request-respon').submit(function(event) {
-            	$('#table-result > tbody').empty();
-            	$('form#request-respon button#form-submit > i').toggleClass('fa-spinner fa-pulse fa-search')
-            	$('form#request-respon button#form-submit').prop('disabled', true)
-                socket.emit('request_respon', {data: $('#noaju').val()});
-                return false;
-            });
-            // $('form#broadcast').submit(function(event) {
-            //     socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
-            //     return false;
-            // });
-            // $('form#join').submit(function(event) {
-            //     socket.emit('join', {room: $('#join_room').val()});
-            //     return false;
-            // });
-            // $('form#leave').submit(function(event) {
-            //     socket.emit('leave', {room: $('#leave_room').val()});
-            //     return false;
-            // });
-            // $('form#send_room').submit(function(event) {
-            //     socket.emit('my_room_event', {room: $('#room_name').val(), data: $('#room_data').val()});
-            //     return false;
-            // });
-            // $('form#close').submit(function(event) {
-            //     socket.emit('close_room', {room: $('#close_room').val()});
-            //     return false;
-            // });
-            // $('form#disconnect').submit(function(event) {
-            //     socket.emit('disconnect_request');
-            //     return false;
-            // });
-        });
-    </script>
-
-  </body>
+	</body>
 </html>

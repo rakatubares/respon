@@ -83,6 +83,7 @@ def validate2(noAju):
 	return (isvalid, tglAwal)
 
 def getResponseManifest2(noAju):
+	emit('my_response', {'data': f'Mencari respon aju {noAju}', 'time': getTime(), 'is_end': False})
 	isvalid, tglAwal = validate2(noAju)
 	if isvalid == True:
 		if 'manifest' not in globals():
@@ -91,6 +92,12 @@ def getResponseManifest2(noAju):
 			time.sleep(2)
 		else:
 			manifest.getResponses(tglAwal, noAju)
+
+def getResponsePeb(noAju):
+	emit('my_response', {'data': f'Mencari respon PEB aju {noAju}', 'time': getTime(), 'is_end': True})
+
+def getResponsePib(noAju):
+	emit('my_response', {'data': f'Mencari respon PIB aju {noAju}', 'time': getTime(), 'is_end': True})
 
 def getTime():
 	now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
@@ -111,9 +118,24 @@ def index():
 # 	return jsonify(msg)
 
 @socketio.on('request_respon')
-def requestRespon(aju):
+def requestRespon(data):
 	stop_event = threading.Event()
-	aju = aju['data']
-	noAju = ''.join(filter(str.isdigit, aju))
-	emit('my_response', {'data': f'Mencari respon aju {aju}', 'time': getTime(), 'is_end': False})
-	getResponseManifest2(aju)
+	jnsAju = data['jnsaju']
+	noAju = data['noaju']
+	noAju = ''.join(filter(str.isdigit, noAju))
+
+	def switchRespon(jnsAju, noAju):
+		switcher = {
+			'Manifest': getResponseManifest2,
+			'PEB': getResponsePeb,
+			'PIB': getResponsePeb
+		}
+		# Get the function from switcher dictionary
+		func = switcher.get(jnsAju)
+		# Execute the function
+		return func(noAju)
+
+	switchRespon(jnsAju, noAju)
+
+	
+	# getResponseManifest2(noaju)
