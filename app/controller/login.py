@@ -61,34 +61,49 @@ class Login(object):
 
 	def inputUserPassword(self):
 		print('Input login details..')
-		# Find login form
-		inputUserName = self.driver.find_element_by_id("txtUserName")
-		inputUserPass = self.driver.find_element_by_id("txtUserPassword")
-		submitButton = self.driver.find_element_by_id("btnSubmit")
-
-		# Input username and password
-		userName = app.config['CEISA_USER']
-		password = app.config['CEISA_PASSWORD']
-
-		inputUserName.send_keys(userName)
-		inputUserPass.send_keys(password)
-		submitButton.click()
-
-		# Try login
-		# timeout = 30
 		try:
-			if self.url == 'http://ceisa.customs.go.id':
-				menu = EC.presence_of_element_located((By.ID, 'divApp'))
-			else:
-				menu = EC.presence_of_element_located((By.CLASS_NAME, 'z-menubar-hor'))
-			WebDriverWait(self.driver, 120).until(menu)
-			self.is_login = True
-			
-			# Store logged in status in database
-			act = SignIn(hash=self.login_id, status='logged in')
-			db.session.add(act)
-			db.session.commit()
-		except TimeoutException:
-			print("Timed out waiting for page to load")
-		except UnexpectedAlertPresentException:
-			print("Invalid password !")
+			# Wait login form
+			checkUserName = EC.presence_of_element_located((By.ID, 'txtUserName'))
+			WebDriverWait(self.driver, 120).until(checkUserName)
+		except Exception as e:
+			try:
+				self.driver.close()
+				self.driver.quit()
+			except AttributeError:
+				pass
+			except Exception as e:
+				raise e
+			finally:
+				self.login()
+		else:
+			# Find login form
+			inputUserName = self.driver.find_element_by_id("txtUserName")
+			inputUserPass = self.driver.find_element_by_id("txtUserPassword")
+			submitButton = self.driver.find_element_by_id("btnSubmit")
+
+			# Input username and password
+			userName = app.config['CEISA_USER']
+			password = app.config['CEISA_PASSWORD']
+
+			inputUserName.send_keys(userName)
+			inputUserPass.send_keys(password)
+			submitButton.click()
+
+			# Try login
+			# timeout = 30
+			try:
+				if self.url == 'http://ceisa.customs.go.id':
+					menu = EC.presence_of_element_located((By.ID, 'divApp'))
+				else:
+					menu = EC.presence_of_element_located((By.CLASS_NAME, 'z-menubar-hor'))
+				WebDriverWait(self.driver, 120).until(menu)
+				self.is_login = True
+				
+				# Store logged in status in database
+				act = SignIn(hash=self.login_id, status='logged in')
+				db.session.add(act)
+				db.session.commit()
+			except TimeoutException:
+				print("Timed out waiting for page to load")
+			except UnexpectedAlertPresentException:
+				print("Invalid password !")
