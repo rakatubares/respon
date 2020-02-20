@@ -12,6 +12,7 @@ socketio = SocketIO(app)
 from app import route, models
 
 route.initiateManifest()
+route.initiateEkspor()
 
 if __name__ == '__main__':
 	socketio.run(app)

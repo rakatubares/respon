@@ -6,6 +6,7 @@ from selenium.common.exceptions import InvalidSessionIdException, TimeoutExcepti
 
 from app import app, socketio
 from app.controller.app.manifest import Manifest
+from app.controller.app.ekspor import Ekspor
 
 def validate(noAju):
 	noAju = ''.join(filter(str.isdigit, noAju))
@@ -13,14 +14,6 @@ def validate(noAju):
 		return [0, 'Isikan no aju lengkap 26 digit']
 	else:
 		return [1, noAju]
-
-def initiateManifest():
-	print('Initiate manifest..')
-
-	global manifest
-	# global driverManifest
-	manifest = Manifest()
-	# manifest.openMenu()
 
 def getResponseManifest(tglAwal, tglAkhir, noAju):
 	respon = ''
@@ -82,8 +75,14 @@ def validate2(noAju):
 				isvalid = True
 	return (isvalid, tglAwal)
 
+def initiateManifest():
+	print('Initiate manifest..')
+
+	global manifest
+	manifest = Manifest()
+
 def getResponseManifest2(noAju):
-	emit('my_response', {'data': f'Mencari respon aju {noAju}', 'time': getTime(), 'is_end': False})
+	emit('my_response', {'data': f'Mencari respon Manifest aju {noAju}', 'time': getTime(), 'is_end': False})
 	isvalid, tglAwal = validate2(noAju)
 	if isvalid == True:
 		if 'manifest' not in globals():
@@ -93,8 +92,22 @@ def getResponseManifest2(noAju):
 		else:
 			manifest.getResponses(tglAwal, noAju)
 
+def initiateEkspor():
+	print('Initiate peb..')
+
+	global ekspor
+	ekspor = Ekspor()
+
 def getResponsePeb(noAju):
-	emit('my_response', {'data': f'Mencari respon PEB aju {noAju}', 'time': getTime(), 'is_end': True})
+	emit('my_response', {'data': f'Mencari respon PEB aju {noAju}', 'time': getTime(), 'is_end': False})
+	isvalid, tglAwal = validate2(noAju)
+	if isvalid == True:
+		if 'ekspor' not in globals():
+			initiateEkspor()
+		while ekspor.is_idle == False:
+			time.sleep(2)
+		else:
+			ekspor.getResponses(tglAwal, noAju)
 
 def getResponsePib(noAju):
 	emit('my_response', {'data': f'Mencari respon PIB aju {noAju}', 'time': getTime(), 'is_end': True})
@@ -128,7 +141,7 @@ def requestRespon(data):
 		switcher = {
 			'Manifest': getResponseManifest2,
 			'PEB': getResponsePeb,
-			'PIB': getResponsePeb
+			'PIB': getResponsePib
 		}
 		# Get the function from switcher dictionary
 		func = switcher.get(jnsAju)

@@ -16,8 +16,8 @@ class Ekspor(object):
 	"""docstring for Ekspor"""
 	def __init__(self):
 		super(Ekspor, self).__init__()
-		self.url = 'http://manif-in.customs.go.id/beacukai-manifes'
-		self.ceisa_app = 'manifest'
+		self.url = 'http://ekspor.customs.go.id/beacukai-ekspor/'
+		self.ceisa_app = 'ekspor'
 		self.is_idle = True
 		self.driver = ''
 		self.openMenu()
@@ -29,15 +29,33 @@ class Ekspor(object):
 	def openMenu(self):
 		self.is_idle = False
 		self.openPage()
-
 		print('Open menu..')
-		menuInformasi = self.driver.find_element_by_css_selector('.z-menu:nth-child(1) button')
+
+		# Klik menu informasi
+		menuInformasi = self.driver.find_element_by_xpath('//button[@class = "z-menu-btn" and contains(., "Informasi")]')
 		menuInformasi.click()
 
-		menuRespon = self.driver.find_element_by_css_selector('.z-menu-popup li:nth-child(3) a')
-		menuRespon.click()
+		# Klik submenu Cetak dan Kirim Ulang Respon
+		checkMenuRespon = EC.presence_of_element_located((By.XPATH, '//ul[@class = "z-menu-popup-cnt"]//a[.= " Cetak dan Kirim Ulang Respon"]'))
+		WebDriverWait(self.driver, 30).until(checkMenuRespon)
 
+		menuRespon = self.driver.find_element_by_xpath('//ul[@class = "z-menu-popup-cnt"]//a[.= " Cetak dan Kirim Ulang Respon"]')
+		menuRespon.click()
 		pre.waitLoading(self.driver)
+
+		# Pilih filter car
+		checkFilter = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-combobox-inp z-combobox-readonly"]'))
+		WebDriverWait(self.driver, 120).until(checkFilter)
+
+		dropFilter = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-combobox-inp z-combobox-readonly"]')
+		dropFilter.click()
+
+		optionCar = self.driver.find_element_by_xpath('//td[@class = "z-comboitem-text" and contains(., "Car")]')
+		optionCar.click()
+
+		checkInputAju = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-textbox" and @maxlength="26"]'))
+		WebDriverWait(self.driver, 120).until(checkInputAju)
+
 		self.is_idle = True
 
 	def getResponses(self, tglAwal, noAju):
@@ -72,13 +90,107 @@ class Ekspor(object):
 			# Update status table
 			msg = 'Mencari respon'
 			self.updateStatus(msg)
+			self.find_peb(tglAwal, noAju)
 
-			self.find_peb()
+		self.is_idle = True
 
-	def find_peb(self):
-		tabPeb = self.driver.find_element_by_css_selector('.z-tab:nth-child(1)')
+	def find_peb(self, tglAwal, noAju):
+		tabPeb = self.driver.find_element_by_xpath('//span[@class = "z-tab-text" and .= "PEB"]')
 		tabPeb.click()
 
-		inputTglAwal = self.driver.find_element_by_css_selector('.z-datebox-inp')
-		dropFilter = self.driver.find_element_by_css_selector('input.z-combobox-inp')
-		optionCar = self.driver.find_element_by_css_selector('tr.z-comboitem:nth-child(4)')
+		# Handling input tgl awal
+		inputTglAwal = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-datebox-inp"]')
+		inputTglAwal.clear()
+		inputTglAwal.click()
+		self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
+		inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
+		inputTxt.click()
+
+		# Handling filter no aju
+		inputAju = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-textbox" and @maxlength="26"]')
+		self.driver.execute_script('arguments[0].value = arguments[1]', inputAju, noAju)
+		inputAju.click()
+
+		# Klik tampilkan
+		btnTampilkan = self.driver.find_element_by_xpath('//td[@class = "z-button-cm" and .= "Tampilkan"]')
+		btnTampilkan.click()
+
+		time.sleep(1)
+		pre.waitLoading(self.driver, 120)
+		try:
+			errorBox = ''
+			errorBox = self.driver.find_element_by_xpath('//div[contains(@class, "z-messagebox")]/span[contains(@class, "z-label") and contains(., "Unknown exception")]')
+			while 'errorBox' != '':
+				self.getResponses(tglAwal, noAju)
+		except NoSuchElementException:
+			try:
+				boxNotFound = self.driver.find_element_by_xpath('//div[@class = "z-window-modal-cnt" and //span[@class = "z-label" and .= "Data Tidak Ditemukan"]]')
+			except NoSuchElementException:
+				print('catch element')
+				noAjuDash = noAju[:6] + '-' + noAju[6:12] + '-' + noAju[12:20] + '-' + noAju[20:]
+				# rowsPeb = self.driver.find_elements_by_xpath('//div[@class = "z-listbox"][1]//tbody[contains(@id, "rows")]/tr')
+				rowPeb = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][1]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and //div[@class = "z-listcell-cnt" and .= "{noAjuDash}"]]')
+
+				colsHeader = rowPeb.find_elements_by_css_selector('td > div')
+				noPeb = colsHeader[0].get_attribute('innerHTML')
+				tglPeb = colsHeader[1].get_attribute('innerHTML')
+				eksportir = colsHeader[2].get_attribute('innerHTML')
+				ppjk = colsHeader[3].get_attribute('innerHTML')
+				perusahaan = ppjk if ppjk != '-' else eksportir
+
+				rowPeb.click()
+				time.sleep(.5)
+				pre.waitLoading(self.driver)
+
+				rows = self.find_elements_by_xpath('//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr')
+				self.updateRequest(perusahaan)
+				self.parseResponses(rows)
+				self.chooseResponses()
+
+				msg = 'Selesai'
+				is_end = True
+				self.updateStatus(msg, is_end)
+			else:
+				btnOkNotFound = self.driver.find_element_by_xpath('//div[@class = "z-window-modal-cnt" and //span[@class = "z-label" and .= "Data Tidak Ditemukan"]]//td[@class = "z-button-cm" and .= "OK"]')
+				btnOkNotFound.click()
+				msg = 'Aju tidak ditemukan atau belum mendapat respon NPE/PPB'
+				is_end = True
+				self.updateStatus(msg, is_end)
+
+	def parseResponses(self, rows):
+		self.responses = []
+		for row in rows:
+			cols = row.find_elements_by_css_selector('td > div')
+			jnResp = cols[2].get_attribute('innerHTML')
+			btnKrm = cols[5].find_element_by_xpath('//td[@class = "z-button-cm" and .= "Kirim"]').get_attribute('id')
+			dataResponse = [jnResp, btnKrm]
+			self.responses.append(dataResponse)
+
+	def updateRequest(self, perusahaan):
+		# Update nama perusahaan ke request table
+		request = Request.query.filter_by(id=self.req_id).first()
+		# perusahaan = self.responses[0][1]
+		request.perusahaan = perusahaan
+		db.session.commit()
+
+	def updateStatus(self, msg, end=False):
+		# sta = Status(id_request=self.req_id, status=msg)
+		# db.session.add(sta)
+		# db.session.commit()
+		emit('my_response', {'data': msg, 'time': self.getTime(), 'is_end': end})
+
+	def getTime(self):
+		now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+		return now
+
+	def alwaysOn(self):
+		threading.Timer(300, self.alwaysOn).start()
+		self.is_idle = False
+		checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
+		WebDriverWait(self.driver, 10).until(checkInputTgl)
+		print('PEB always on')
+		btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
+		btnDate.click()
+		time.sleep(1)
+		btnDate.click()
+		self.is_idle = True

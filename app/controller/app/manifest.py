@@ -107,7 +107,7 @@ class Manifest(object):
 				errorBox = ''
 				errorBox = self.driver.find_element_by_xpath('//div[contains(@class, "z-messagebox")]/span[contains(@class, "z-label") and contains(., "Unknown exception")]')
 				while 'errorBox' != '':
-					self.getResponses(tglAwal, tglAkhir, noAju)
+					self.getResponses(tglAwal, noAju)
 			except NoSuchElementException:
 				try:
 					boxNotFound = self.driver.find_element_by_xpath('//div[contains(@class, "z-messagebox")]/span[contains(@class, "z-label") and .= "data tidak ditemukan"]')
