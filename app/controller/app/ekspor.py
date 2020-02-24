@@ -1,4 +1,4 @@
-import threading, time
+import html, threading, time
 from bs4 import BeautifulSoup
 from datetime import datetime
 from flask_socketio import emit
@@ -99,12 +99,15 @@ class Ekspor(object):
 		tabPeb.click()
 
 		# Handling input tgl awal
-		inputTglAwal = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-datebox-inp"]')
-		inputTglAwal.clear()
-		inputTglAwal.click()
-		self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
-		inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
-		inputTxt.click()
+		dateTglAwal = datetime.strptime(tglAwal, "%d%m%y").date()
+		dateNow = datetime.today().date()
+		if dateTglAwal != dateNow:
+			inputTglAwal = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-datebox-inp"]')
+			inputTglAwal.clear()
+			inputTglAwal.click()
+			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
+			inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
+			inputTxt.click()
 
 		# Handling filter no aju
 		inputAju = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-textbox" and @maxlength="26"]')
@@ -128,7 +131,6 @@ class Ekspor(object):
 			except NoSuchElementException:
 				print('catch element')
 				noAjuDash = noAju[:6] + '-' + noAju[6:12] + '-' + noAju[12:20] + '-' + noAju[20:]
-				# rowsPeb = self.driver.find_elements_by_xpath('//div[@class = "z-listbox"][1]//tbody[contains(@id, "rows")]/tr')
 				rowPeb = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][1]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and //div[@class = "z-listcell-cnt" and .= "{noAjuDash}"]]')
 
 				colsHeader = rowPeb.find_elements_by_css_selector('td > div')
@@ -138,18 +140,15 @@ class Ekspor(object):
 				ppjk = colsHeader[3].get_attribute('innerHTML')
 				perusahaan = ppjk if ppjk != '-' else eksportir
 
-				rowPeb.click()
+				self.updateStatus(f'PEB no {noPeb} tgl {tglPeb} ditemukan')
+
+				self.driver.execute_script('arguments[0].click()', rowPeb)
 				time.sleep(.5)
 				pre.waitLoading(self.driver)
 
-				rows = self.find_elements_by_xpath('//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr')
+				rows = self.driver.find_elements_by_xpath('//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr')
 				self.updateRequest(perusahaan)
-				self.parseResponses(rows)
-				self.chooseResponses()
-
-				msg = 'Selesai'
-				is_end = True
-				self.updateStatus(msg, is_end)
+				self.chooseResponses(rows)
 			else:
 				btnOkNotFound = self.driver.find_element_by_xpath('//div[@class = "z-window-modal-cnt" and //span[@class = "z-label" and .= "Data Tidak Ditemukan"]]//td[@class = "z-button-cm" and .= "OK"]')
 				btnOkNotFound.click()
@@ -157,26 +156,50 @@ class Ekspor(object):
 				is_end = True
 				self.updateStatus(msg, is_end)
 
-	def parseResponses(self, rows):
+	def chooseResponses(self, rows):
+		print('Choose response..')
+		chosenResponses = ['NPE', 'PPB', 'BCF']
 		self.responses = []
+
 		for row in rows:
-			cols = row.find_elements_by_css_selector('td > div')
-			jnResp = cols[2].get_attribute('innerHTML')
-			btnKrm = cols[5].find_element_by_xpath('//td[@class = "z-button-cm" and .= "Kirim"]').get_attribute('id')
-			dataResponse = [jnResp, btnKrm]
-			self.responses.append(dataResponse)
+			jnResp = html.unescape(row.find_element_by_css_selector('td:nth-child(3) > div').get_attribute('innerHTML'))
+			print(jnResp)
+			if any(word in jnResp for word in chosenResponses):
+				self.responses.append(jnResp)
+		self.responses = tuple(set(self.responses))
+
+		if len(self.responses) > 0:
+			for rs in self.responses:
+				self.sendResponses(rs)
+			msg = 'Selesai'
+			is_end = True
+			self.updateStatus(msg, is_end)
+		else:
+			msg = 'Aju ini belum mendapat respon NPE atau PPB'
+			is_end = True
+			self.updateStatus(msg, is_end)
+
+	def sendResponses(self, response):
+		print('Send response..')
+
+		btnKrm = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and ./td/div[.= "{response}"]]//td[@class = "z-button-cm" and .="Kirim"]')
+		btnKrm.click()
+		checkModalOk = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]'))
+		WebDriverWait(self.driver, 120).until(checkModalOk)
+		btnOk = self.driver.find_element_by_xpath('//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]//td[@class = "z-button-cm" and .= "OK"]')
+		btnOk.click()
+		self.updateStatus(f'{response} berhasil dikirim')
 
 	def updateRequest(self, perusahaan):
 		# Update nama perusahaan ke request table
 		request = Request.query.filter_by(id=self.req_id).first()
-		# perusahaan = self.responses[0][1]
 		request.perusahaan = perusahaan
 		db.session.commit()
 
 	def updateStatus(self, msg, end=False):
-		# sta = Status(id_request=self.req_id, status=msg)
-		# db.session.add(sta)
-		# db.session.commit()
+		sta = Status(id_request=self.req_id, status=msg)
+		db.session.add(sta)
+		db.session.commit()
 		emit('my_response', {'data': msg, 'time': self.getTime(), 'is_end': end})
 
 	def getTime(self):

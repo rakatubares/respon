@@ -8,53 +8,45 @@ from app import app, socketio
 from app.controller.app.manifest import Manifest
 from app.controller.app.ekspor import Ekspor
 
+def initiateManifest():
+	print('Initiate manifest..')
+
+	global manifest
+	manifest = Manifest()
+
+def getResponseManifest(noAju):
+	emit('my_response', {'data': f'Processing Manifest aju {noAju}', 'time': getTime(), 'is_end': False})
+	isvalid, tglAwal = validate(noAju)
+	if isvalid == True:
+		if 'manifest' not in globals():
+			initiateManifest()
+		while manifest.is_idle == False:
+			time.sleep(2)
+		else:
+			manifest.getResponses(tglAwal, noAju)
+
+def initiateEkspor():
+	print('Initiate peb..')
+
+	global ekspor
+	ekspor = Ekspor()
+
+def getResponsePeb(noAju):
+	emit('my_response', {'data': f'Processing PEB aju {noAju}', 'time': getTime(), 'is_end': False})
+	isvalid, tglAwal = validate(noAju)
+	if isvalid == True:
+		if 'ekspor' not in globals():
+			initiateEkspor()
+		while ekspor.is_idle == False:
+			time.sleep(2)
+		else:
+			ekspor.getResponses(tglAwal, noAju)
+
+def getResponsePib(noAju):
+	# emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': True})
+	emit('my_response', {'data': f'Kirim ulang respon PIB belum tersedia', 'time': getTime(), 'is_end': True})
+
 def validate(noAju):
-	noAju = ''.join(filter(str.isdigit, noAju))
-	if len(noAju) != 26:
-		return [0, 'Isikan no aju lengkap 26 digit']
-	else:
-		return [1, noAju]
-
-def getResponseManifest(tglAwal, tglAkhir, noAju):
-	respon = ''
-	format1 = '%Y-%m-%d'
-	format2 = '%d%m%y'
-	tglAwal = datetime.strptime(tglAwal, format1).strftime(format2)
-	tglAkhir = datetime.strptime(tglAkhir, format1).strftime(format2)
-
-	isvalid = validate(noAju)
-	if isvalid[0] == 0:
-		return ['msg', isvalid[1]]
-	else:
-		noAju = isvalid[1]
-
-	# while respon == '':
-	# 	try:
-	# 		if driverManifest not in globals():
-	# 			initiateManifest()
-	# 		respon = manifest.getResponses(tglAwal, tglAkhir, noAju)
-	# 	except (NameError, InvalidSessionIdException) as e:
-	# 		if 'manifest' in globals():
-	# 			driverManifest.close()
-	# 		initiateManifest()
-			# raise e
-
-			# try:
-			# 	pass
-			# except Exception as e:
-			# 	raise e
-			# else:
-			# 	pass
-
-	if 'manifest' not in globals():
-		initiateManifest()
-	respon = manifest.getResponses(tglAwal, tglAkhir, noAju)
-
-	return ['respon', respon]
-	# manifest.getResponses(tglAwal, tglAkhir, noAju)
-	# return None
-
-def validate2(noAju):
 	isvalid = False
 	tglAwal = ''
 
@@ -75,43 +67,6 @@ def validate2(noAju):
 				isvalid = True
 	return (isvalid, tglAwal)
 
-def initiateManifest():
-	print('Initiate manifest..')
-
-	global manifest
-	manifest = Manifest()
-
-def getResponseManifest2(noAju):
-	emit('my_response', {'data': f'Mencari respon Manifest aju {noAju}', 'time': getTime(), 'is_end': False})
-	isvalid, tglAwal = validate2(noAju)
-	if isvalid == True:
-		if 'manifest' not in globals():
-			initiateManifest()
-		while manifest.is_idle == False:
-			time.sleep(2)
-		else:
-			manifest.getResponses(tglAwal, noAju)
-
-def initiateEkspor():
-	print('Initiate peb..')
-
-	global ekspor
-	ekspor = Ekspor()
-
-def getResponsePeb(noAju):
-	emit('my_response', {'data': f'Mencari respon PEB aju {noAju}', 'time': getTime(), 'is_end': False})
-	isvalid, tglAwal = validate2(noAju)
-	if isvalid == True:
-		if 'ekspor' not in globals():
-			initiateEkspor()
-		while ekspor.is_idle == False:
-			time.sleep(2)
-		else:
-			ekspor.getResponses(tglAwal, noAju)
-
-def getResponsePib(noAju):
-	emit('my_response', {'data': f'Mencari respon PIB aju {noAju}', 'time': getTime(), 'is_end': True})
-
 def getTime():
 	now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
 	return now
@@ -119,16 +74,6 @@ def getTime():
 @app.route('/')
 def index():
 	return render_template('index.html')
-
-# @app.route('/respon', methods=['GET'])
-# def respon():
-# 	respon = getResponseManifest(request.args['tglawal'], request.args['tglakhir'], request.args['aju'])
-# 	return jsonify(respon)
-
-# @app.route('/click', methods=['GET'])
-# def click():
-# 	msg = manifest.sendResponse(request.args['id'])
-# 	return jsonify(msg)
 
 @socketio.on('request_respon')
 def requestRespon(data):
@@ -139,7 +84,7 @@ def requestRespon(data):
 
 	def switchRespon(jnsAju, noAju):
 		switcher = {
-			'Manifest': getResponseManifest2,
+			'Manifest': getResponseManifest,
 			'PEB': getResponsePeb,
 			'PIB': getResponsePib
 		}
@@ -149,6 +94,3 @@ def requestRespon(data):
 		return func(noAju)
 
 	switchRespon(jnsAju, noAju)
-
-	
-	# getResponseManifest2(noaju)
