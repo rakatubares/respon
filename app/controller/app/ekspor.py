@@ -21,6 +21,7 @@ class Ekspor(object):
 		self.is_idle = True
 		self.driver = ''
 		self.openMenu()
+		self.alwaysOn()
 
 	def openPage(self):
 		log = Login(self.url, self.ceisa_app)
