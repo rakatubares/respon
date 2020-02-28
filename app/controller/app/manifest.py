@@ -19,7 +19,6 @@ class Manifest(object):
 		self.url = 'http://manif-in.customs.go.id/beacukai-manifes'
 		self.ceisa_app = 'manifest'
 		self.is_idle = True
-		# self.searches = []
 		self.req_id = 0
 		self.driver = ''
 		self.responses = []
@@ -53,7 +52,7 @@ class Manifest(object):
 		pre.waitLoading(self.driver)
 		self.is_idle = True
 
-	def getResponses(self, tglAwal, noAju):
+	def getResponses(self, tglAwal, tglAkhir, noAju):
 		self.is_idle = False
 
 		# Create request id in database
@@ -86,7 +85,7 @@ class Manifest(object):
 			msg = 'Mencari respon'
 			self.updateStatus(msg)
 
-			inputTglAwal = self.driver.find_element_by_css_selector('.z-datebox-inp')
+			inputTglAwal, inputTglAkhir = self.driver.find_elements_by_css_selector('.z-datebox-inp')
 			inputText = self.driver.find_elements_by_css_selector('.z-textbox')
 			inputAju = inputText[1]
 
@@ -96,6 +95,11 @@ class Manifest(object):
 			inputTglAwal.clear()
 			inputTglAwal.click()
 			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
+
+			# Handling input tgl awal
+			inputTglAkhir.clear()
+			inputTglAkhir.click()
+			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAkhir, tglAkhir)
 
 			# Handling input aju
 			inputAju.clear()

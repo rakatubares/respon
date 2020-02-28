@@ -17,13 +17,14 @@ def initiateManifest():
 def getResponseManifest(noAju):
 	emit('my_response', {'data': f'Processing Manifest aju {noAju}', 'time': getTime(), 'is_end': False})
 	isvalid, tglAwal = validate(noAju)
+	tglAkhir = getDate()
 	if isvalid == True:
 		if 'manifest' not in globals():
 			initiateManifest()
 		while manifest.is_idle == False:
 			time.sleep(2)
 		else:
-			manifest.getResponses(tglAwal, noAju)
+			manifest.getResponses(tglAwal, tglAkhir, noAju)
 
 def initiateEkspor():
 	print('Initiate peb..')
@@ -69,6 +70,10 @@ def validate(noAju):
 
 def getTime():
 	now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+	return now
+
+def getDate():
+	now = datetime.now().strftime('%d%m%y')
 	return now
 
 @app.route('/')
