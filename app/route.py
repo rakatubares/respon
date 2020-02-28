@@ -8,6 +8,20 @@ from respon import app, socketio
 from app.controller.app.manifest import Manifest
 from app.controller.app.ekspor import Ekspor
 
+def switchRespon(jnsAju, noAju):
+	switcher = {
+		'Manifest': getResponseManifest,
+		'PEB': getResponsePeb,
+		'PIB': getResponsePib
+	}
+	# Get the function from switcher dictionary
+	func = switcher.get(jnsAju, returnAjuNotFound)
+	# Execute the function
+	return func(noAju)
+
+def returnAjuNotFound(noAju):
+	emit('my_response', {'data': f'Jenis aju tidak ditemukan', 'time': getTime(), 'is_end': True})
+
 def initiateManifest():
 	print('Initiate manifest..')
 
@@ -88,15 +102,7 @@ def requestRespon(data):
 	noAju = data['noaju']
 	noAju = ''.join(filter(str.isdigit, noAju))
 
-	def switchRespon(jnsAju, noAju):
-		switcher = {
-			'Manifest': getResponseManifest,
-			'PEB': getResponsePeb,
-			'PIB': getResponsePib
-		}
-		# Get the function from switcher dictionary
-		func = switcher.get(jnsAju)
-		# Execute the function
-		return func(noAju)
-
-	switchRespon(jnsAju, noAju)
+	if jnsAju == None:
+		emit('my_response', {'data': f'Pilih jenis aju dulu', 'time': getTime(), 'is_end': True})
+	else:
+		switchRespon(jnsAju, noAju)
