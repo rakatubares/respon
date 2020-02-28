@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from app import app, db, socketio
+from respon import app, db, socketio
 from app.controller import preprocess as pre
 from app.controller.login import Login
 from app.models import Request, Status

@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 # import apps.config as cfg
-from app import app, db
+from respon import app, db
 from app.models import SignIn
 
 class Login(object):

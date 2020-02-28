@@ -4,7 +4,7 @@ from flask import render_template, request, jsonify
 from flask_socketio import emit
 from selenium.common.exceptions import InvalidSessionIdException, TimeoutException, WebDriverException
 
-from app import app, socketio
+from respon import app, socketio
 from app.controller.app.manifest import Manifest
 from app.controller.app.ekspor import Ekspor
 
