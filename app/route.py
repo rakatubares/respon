@@ -35,13 +35,14 @@ def initiateEkspor():
 def getResponsePeb(noAju):
 	emit('my_response', {'data': f'Processing PEB aju {noAju}', 'time': getTime(), 'is_end': False})
 	isvalid, tglAwal = validate(noAju)
+	tglAkhir = getDate()
 	if isvalid == True:
 		if 'ekspor' not in globals():
 			initiateEkspor()
 		while ekspor.is_idle == False:
 			time.sleep(2)
 		else:
-			ekspor.getResponses(tglAwal, noAju)
+			ekspor.getResponses(tglAwal, tglAkhir, noAju)
 
 def getResponsePib(noAju):
 	# emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': True})

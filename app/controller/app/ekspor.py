@@ -59,7 +59,7 @@ class Ekspor(object):
 
 		self.is_idle = True
 
-	def getResponses(self, tglAwal, noAju):
+	def getResponses(self, tglAwal, tglAkhir, noAju):
 		self.is_idle = False
 
 		# Create request id in database
@@ -91,24 +91,29 @@ class Ekspor(object):
 			# Update status table
 			msg = 'Mencari respon'
 			self.updateStatus(msg)
-			self.find_peb(tglAwal, noAju)
+			self.find_peb(tglAwal, tglAkhir, noAju)
 
 		self.is_idle = True
 
-	def find_peb(self, tglAwal, noAju):
+	def find_peb(self, tglAwal, tglAkhir, noAju):
 		tabPeb = self.driver.find_element_by_xpath('//span[@class = "z-tab-text" and .= "PEB"]')
 		tabPeb.click()
 
+		inputTglAwal, inputTglAkhir = self.driver.find_elements_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-datebox-inp"]')
+
+		# Handling input tgl akhir
+		inputTglAkhir.clear()
+		inputTglAkhir.click()
+		self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAkhir, tglAkhir)
+		inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
+		inputTxt.click()
+
 		# Handling input tgl awal
-		dateTglAwal = datetime.strptime(tglAwal, "%d%m%y").date()
-		dateNow = datetime.today().date()
-		if dateTglAwal != dateNow:
-			inputTglAwal = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-datebox-inp"]')
-			inputTglAwal.clear()
-			inputTglAwal.click()
-			self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
-			inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
-			inputTxt.click()
+		inputTglAwal.clear()
+		inputTglAwal.click()
+		self.driver.execute_script('arguments[0].value = arguments[1]', inputTglAwal, tglAwal)
+		inputTxt = self.driver.find_element_by_css_selector('.z-textbox')
+		inputTxt.click()
 
 		# Handling filter no aju
 		inputAju = self.driver.find_element_by_xpath('//div[@class = "z-tabpanels"]/div[@class = "z-tabpanel"][1]//input[@class = "z-textbox" and @maxlength="26"]')
