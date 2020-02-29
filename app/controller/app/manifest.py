@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from respon import app, db, socketio
 from app.controller import preprocess as pre
 from app.controller.login import Login
-from app.models import Request, Status
+from app.models import SignIn, Request, Status
 
 class Manifest(object):
 	"""docstring for Manifest"""
@@ -33,7 +33,7 @@ class Manifest(object):
 	def openPage(self):
 		log = Login(self.url, self.ceisa_app)
 		self.driver = log.login()
-		# return self.driver
+		self.hash = log.login_id
 
 	def openMenu(self):
 		self.is_idle = False
@@ -51,6 +51,10 @@ class Manifest(object):
 
 		pre.waitLoading(self.driver)
 		self.is_idle = True
+
+	def closeDriver(self):
+		self.driver.close()
+		self.driver.quit()
 
 	def getResponses(self, tglAwal, tglAkhir, noAju):
 		self.is_idle = False
@@ -238,11 +242,21 @@ class Manifest(object):
 	def alwaysOn(self):
 		threading.Timer(300, self.alwaysOn).start()
 		self.is_idle = False
-		checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
-		WebDriverWait(self.driver, 10).until(checkInputTgl)
-		print('always on')
-		btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
-		btnDate.click()
-		time.sleep(1)
-		btnDate.click()
+		try:
+			checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
+			WebDriverWait(self.driver, 10).until(checkInputTgl)
+		except TimeoutException:
+			applog = SignIn(hash=self.hash, status=f'{self.ceisa_app} restart')
+			db.session.add(applog)
+			db.session.commit()
+			self.closeDriver()
+			self.openMenu()
+		except Exception as e:
+			raise e
+		else:
+			print(f'{self.ceisa_app} always on')
+			btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
+			btnDate.click()
+			time.sleep(1)
+			btnDate.click()
 		self.is_idle = True

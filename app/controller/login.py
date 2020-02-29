@@ -43,7 +43,7 @@ class Login(object):
 		print('Open login page..')
 
 		# Create activity id in database
-		act = SignIn(hash=self.login_id, status='start')
+		act = SignIn(hash=self.login_id, status=f'{self.ceisa_app} start')
 		db.session.add(act)
 		db.session.commit()
 
@@ -100,7 +100,7 @@ class Login(object):
 				self.is_login = True
 				
 				# Store logged in status in database
-				act = SignIn(hash=self.login_id, status='logged in')
+				act = SignIn(hash=self.login_id, status=f'{self.ceisa_app} logged in')
 				db.session.add(act)
 				db.session.commit()
 			except TimeoutException:
