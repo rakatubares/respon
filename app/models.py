@@ -2,7 +2,7 @@ from respon import db
 # from sqlalchemy import text
 
 class SignIn(db.Model):
-	__tablename__ = 'login'
+	__tablename__ = 'log'
 	id = db.Column(db.Integer, primary_key=True)
 	hash = db.Column(db.String(32), index=True, nullable=False)
 	status = db.Column(db.String(32), index=True, nullable=False)
