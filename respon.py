@@ -1,6 +1,5 @@
 import os
 from config import DevelopmentConfig, ProductionConfig
-from dotenv import load_dotenv, find_dotenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -14,10 +13,6 @@ migrate = Migrate(app, db)
 socketio = SocketIO(app)
 
 from app import route, models
-from app.controller import logFile
-
-if os.environ.get('FLASK_ENV') == 'production':
-	logFile.rename()
 
 route.initiateManifest()
 route.initiateEkspor()
