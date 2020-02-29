@@ -5,8 +5,8 @@ from flask_socketio import emit
 from selenium.common.exceptions import InvalidSessionIdException, TimeoutException, WebDriverException
 
 from respon import app, socketio
-from app.controller.app.manifest import Manifest
-from app.controller.app.ekspor import Ekspor
+from app.controller.ceisa.manifest import Manifest
+from app.controller.ceisa.ekspor import Ekspor
 
 def switchRespon(jnsAju, noAju):
 	switcher = {
