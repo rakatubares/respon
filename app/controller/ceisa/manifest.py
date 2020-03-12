@@ -241,22 +241,20 @@ class Manifest(object):
 
 	def alwaysOn(self):
 		threading.Timer(300, self.alwaysOn).start()
-		self.is_idle = False
-		try:
-			checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
-			WebDriverWait(self.driver, 10).until(checkInputTgl)
-		except TimeoutException:
-			applog = SignIn(hash=self.hash, status=f'{self.ceisa_app} restart')
-			db.session.add(applog)
-			db.session.commit()
-			self.closeDriver()
-			self.openMenu()
-		except Exception as e:
-			raise e
-		else:
-			print(f'{self.ceisa_app} always on')
-			btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
-			btnDate.click()
-			time.sleep(1)
-			btnDate.click()
-		self.is_idle = True
+		if self.is_idle == True:
+			self.is_idle = False
+			try:
+				print(f'{self.ceisa_app} always on')
+				checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
+				WebDriverWait(self.driver, 10).until(checkInputTgl)
+				btnDate = self.driver.find_element_by_css_selector('.z-datebox-btn')
+				btnDate.click()
+				time.sleep(1)
+				btnDate.click()
+			except Exception:
+				applog = SignIn(hash=self.hash, status=f'{self.ceisa_app} restart')
+				db.session.add(applog)
+				db.session.commit()
+				self.closeDriver()
+				self.openMenu()
+			self.is_idle = True
