@@ -1,4 +1,4 @@
-import os, sys
+import sys
 sys.path.append("..")
 
 import getpass
@@ -56,7 +56,7 @@ class Login(object):
 		ff_profile = webdriver.FirefoxProfile(profile_directory=app.config['PATH_GECKODRIVER'])
 
 		# create a new Firefox session
-		self.driver = webdriver.Firefox(firefox_profile=ff_profile, service_log_path=os.devnull, options=options, capabilities=caps)
+		self.driver = webdriver.Firefox(firefox_profile=ff_profile, options=options, capabilities=caps)
 		self.driver.get(self.url)
 		login_form = EC.presence_of_element_located((By.ID, 'txtUserName'))
 		WebDriverWait(self.driver, 120).until(login_form)
