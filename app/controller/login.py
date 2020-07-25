@@ -53,8 +53,10 @@ class Login(object):
 		caps = DesiredCapabilities().FIREFOX
 		caps["pageLoadStrategy"] = "eager"
 
+		ff_profile = webdriver.FirefoxProfile(profile_directory=app.config['PATH_GECKODRIVER'])
+
 		# create a new Firefox session
-		self.driver = webdriver.Firefox(options=options, capabilities=caps)
+		self.driver = webdriver.Firefox(firefox_profile=ff_profile, options=options, capabilities=caps)
 		self.driver.get(self.url)
 		login_form = EC.presence_of_element_located((By.ID, 'txtUserName'))
 		WebDriverWait(self.driver, 120).until(login_form)

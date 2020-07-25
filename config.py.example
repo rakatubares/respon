@@ -15,6 +15,9 @@ class ProductionConfig(object):
 	CEISA_USER = 'username.ceisa'
 	CEISA_PASSWORD = 'password.ceisa'
 
+	# geckodriver
+	PATH_GECKODRIVER = 'path/to/geckodriver'
+
 class DevelopmentConfig(object):
 	# flask
 	SECRET_KEY = 'YourSecretKey'
@@ -28,3 +31,6 @@ class DevelopmentConfig(object):
 	# ceisa
 	CEISA_USER = 'username.ceisa'
 	CEISA_PASSWORD = 'password.ceisa'
+
+	# geckodriver
+	PATH_GECKODRIVER = 'path/to/geckodriver'
