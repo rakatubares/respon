@@ -1,6 +1,6 @@
 import os, sys
  
-sys.path.insert(0, 'C:/laragon/www/respon/')
+sys.path.insert(0, 'path/to/app/folder/')
 
 os.environ['FLASK_ENV'] = 'production'
  

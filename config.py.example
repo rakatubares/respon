@@ -1,0 +1,30 @@
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# FILL PARAMETERS THEN SAVE AS THIS FILE TO "config.py"
+
+class ProductionConfig(object):
+	# flask
+	SECRET_KEY = '123456'
+
+	# database
+	SQLALCHEMY_DATABASE_URI = 'mysql://user:password@server/db_prod_name'
+	SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+	# ceisa
+	CEISA_USER = 'username.ceisa'
+	CEISA_PASSWORD = 'password.ceisa'
+
+class DevelopmentConfig(object):
+	# flask
+	SECRET_KEY = 'YourSecretKey'
+	DEBUG = False
+	FLASK_DEBUG = 0
+
+	# database
+	SQLALCHEMY_DATABASE_URI = 'mysql://user:password@server/db_dev_name'
+	SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+	# ceisa
+	CEISA_USER = 'username.ceisa'
+	CEISA_PASSWORD = 'password.ceisa'
