@@ -21,5 +21,5 @@ class Status(db.Model):
 	__tablename__ = 'request_status'
 	id = db.Column(db.Integer, primary_key=True)
 	id_request = db.Column(db.Integer, db.ForeignKey('request.id'), nullable=False)
-	status = db.Column(db.String(32), index=True, nullable=False)
+	status = db.Column(db.String(256), index=True, nullable=False)
 	created_at = db.Column(db.TIMESTAMP, server_default=db.text('CURRENT_TIMESTAMP'), nullable=False)
