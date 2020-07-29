@@ -192,18 +192,31 @@ class Ekspor(object):
 		print(f'PEB [ID:{self.req_id}] - Send response {response}..')
 
 		try:
-			btnKrm = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and ./td/div[.= "{response}"]]//td[@class = "z-button-cm" and .="Kirim"]')
-			btnKrm.click()
-			checkModalOk = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]'))
-			WebDriverWait(self.driver, 120).until(checkModalOk)
-			btnOk = self.driver.find_element_by_xpath('//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]//td[@class = "z-button-cm" and .= "OK"]')
-			btnOk.click()
+			checkBtnKrm = EC.element_to_be_clickable((By.XPATH, f'//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and ./td/div[.= "{response}"]]//td[@class = "z-button-cm" and .="Kirim"]'))
+			btnKrm = WebDriverWait(self.driver, 30).until(checkBtnKrm)
+		except TimeoutException:
+			print(f'PEB [ID:{self.req_id}] - GAGAL MENDAPATKAN TOMBOL KIRIM {e}')
+			self.updateStatus(f'Gagal kirim respon. Coba beberapa saat lagi.', True)
 		except Exception as e:
 			print(f'PEB [ID:{self.req_id}] - ERROR {e}')
 			self.updateStatus(f'Gagal kirim respon. Coba beberapa saat lagi.', True)
 			self.is_alive = False
 		else:
-			self.updateStatus(f'{response} berhasil dikirim')
+			btnKrm.click()
+			try:
+				xpathBtnOk = '//div[@class = "z-window-modal z-window-modal-shadow"][.//span[@class = "z-label"][text() = "Data Berhasil Dikirim" or text() = "Data Sudah Dikirim"]]//td[@class = "z-button-cm" and .= "OK"]'
+				checkBtnOk = EC.element_to_be_clickable((By.XPATH, xpathBtnOk))
+				btnOk = WebDriverWait(self.driver, 30).until(checkBtnOk)
+			except TimeoutException:
+				print(f'PEB [ID:{self.req_id}] - GAGAL MENDAPATKAN TOMBOL KONFIRMASI {e}')
+				self.updateStatus(f'Gagal kirim respon. Coba beberapa saat lagi.', True)
+			except Exception as e:
+				print(f'PEB [ID:{self.req_id}] - ERROR {e}')
+				self.updateStatus(f'Gagal kirim respon. Coba beberapa saat lagi.', True)
+				self.is_alive = False
+			else:
+				btnOk.click()
+				self.updateStatus(f'{response} berhasil dikirim')
 
 	def updateRequest(self, perusahaan):
 		# Update nama perusahaan ke request table
