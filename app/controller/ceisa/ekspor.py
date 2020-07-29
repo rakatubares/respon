@@ -18,6 +18,7 @@ class Ekspor(object):
 		super(Ekspor, self).__init__()
 		self.url = 'http://ekspor.customs.go.id/beacukai-ekspor/'
 		self.ceisa_app = 'ekspor'
+		self.is_alive = True
 		self.is_idle = True
 		self.driver = ''
 		self.openMenu()
@@ -31,7 +32,7 @@ class Ekspor(object):
 	def openMenu(self):
 		self.is_idle = False
 		self.openPage()
-		print('Open menu..')
+		print('PEB - Open menu..')
 
 		# Klik menu informasi
 		menuInformasi = self.driver.find_element_by_xpath('//button[@class = "z-menu-btn" and contains(., "Informasi")]')
@@ -82,7 +83,7 @@ class Ekspor(object):
 			checkInputTgl = EC.presence_of_element_located((By.CLASS_NAME, 'z-datebox-inp'))
 			WebDriverWait(self.driver, 10).until(checkInputTgl)
 		except TimeoutException:
-			print('Timeout to load page..')
+			print(f'PEB [ID:{self.req_id}] - Timeout to load page..')
 
 			# Store error in status table
 			msg = 'Gagal membuka halaman pencarian. Coba beberapa saat lagi.'
@@ -91,7 +92,7 @@ class Ekspor(object):
 		except Exception as e:
 			raise e
 		else:
-			print('Collect responses..')
+			print(f'PEB [ID:{self.req_id}] - Collect responses..')
 
 			# Update status table
 			msg = 'Mencari respon'
@@ -140,7 +141,6 @@ class Ekspor(object):
 			try:
 				boxNotFound = self.driver.find_element_by_xpath('//div[@class = "z-window-modal-cnt" and //span[@class = "z-label" and .= "Data Tidak Ditemukan"]]')
 			except NoSuchElementException:
-				print('catch element')
 				noAjuDash = noAju[:6] + '-' + noAju[6:12] + '-' + noAju[12:20] + '-' + noAju[20:]
 				rowPeb = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][1]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and //div[@class = "z-listcell-cnt" and .= "{noAjuDash}"]]')
 
@@ -168,38 +168,42 @@ class Ekspor(object):
 				self.updateStatus(msg, is_end)
 
 	def chooseResponses(self, rows):
-		print('Choose response..')
+		print(f'PEB [ID:{self.req_id}] - Choose response..')
 		chosenResponses = ['NPE', 'PPB', 'BCF']
 		self.responses = []
 
 		for row in rows:
 			jnResp = html.unescape(row.find_element_by_css_selector('td:nth-child(3) > div').get_attribute('innerHTML'))
-			print(jnResp)
 			if any(word in jnResp for word in chosenResponses):
 				self.responses.append(jnResp)
 		self.responses = tuple(set(self.responses))
 
 		if len(self.responses) > 0:
 			for rs in self.responses:
-				self.sendResponses(rs)
-			msg = 'Selesai'
-			is_end = True
-			self.updateStatus(msg, is_end)
+				if self.is_alive == True:
+					self.sendResponses(rs)
+
+			if self.is_alive == True:
+				self.updateStatus('Selesai', True)
 		else:
-			msg = 'Aju ini belum mendapat respon NPE atau PPB'
-			is_end = True
-			self.updateStatus(msg, is_end)
+			self.updateStatus('Aju ini belum mendapat respon NPE atau PPB', True)
 
 	def sendResponses(self, response):
-		print('Send response..')
+		print(f'PEB [ID:{self.req_id}] - Send response {response}..')
 
-		btnKrm = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and ./td/div[.= "{response}"]]//td[@class = "z-button-cm" and .="Kirim"]')
-		btnKrm.click()
-		checkModalOk = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]'))
-		WebDriverWait(self.driver, 120).until(checkModalOk)
-		btnOk = self.driver.find_element_by_xpath('//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]//td[@class = "z-button-cm" and .= "OK"]')
-		btnOk.click()
-		self.updateStatus(f'{response} berhasil dikirim')
+		try:
+			btnKrm = self.driver.find_element_by_xpath(f'//div[@class = "z-listbox"][2]//tbody[contains(@id, "rows")]/tr[contains(@class, "z-listitem") and ./td/div[.= "{response}"]]//td[@class = "z-button-cm" and .="Kirim"]')
+			btnKrm.click()
+			checkModalOk = EC.presence_of_element_located((By.XPATH, '//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]'))
+			WebDriverWait(self.driver, 120).until(checkModalOk)
+			btnOk = self.driver.find_element_by_xpath('//div[@class = "z-window-modal z-window-modal-shadow" and .//span[@class = "z-label" and .= "Data Berhasil Dikirim"]]//td[@class = "z-button-cm" and .= "OK"]')
+			btnOk.click()
+		except Exception as e:
+			print(f'PEB [ID:{self.req_id}] - ERROR {e}')
+			self.updateStatus(f'Gagal kirim respon. Coba beberapa saat lagi.', True)
+			self.is_alive = False
+		else:
+			self.updateStatus(f'{response} berhasil dikirim')
 
 	def updateRequest(self, perusahaan):
 		# Update nama perusahaan ke request table

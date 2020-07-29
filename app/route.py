@@ -57,6 +57,9 @@ def getResponsePeb(noAju):
 			time.sleep(2)
 		else:
 			ekspor.getResponses(tglAwal, tglAkhir, noAju)
+			if ekspor.is_alive == False:
+				ekspor.closeDriver()
+				initiateEkspor()
 
 def getResponsePib(noAju):
 	# emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': True})
@@ -79,8 +82,12 @@ def validate(noAju):
 			if dateAju > dateNow:
 				emit('my_response', {'data': 'Tanggal aju tidak boleh lebih dari hari ini', 'time': getTime(), 'is_end': True})
 			else:
-				tglAwal = dateAju.strftime('%d%m%y')
-				isvalid = True
+				try:
+					tglAwal = dateAju.strftime('%d%m%y')
+				except ValueError:
+					emit('my_response', {'data': 'Tanggal aju tidak valid', 'time': getTime(), 'is_end': True})
+				else:
+					isvalid = True
 	return (isvalid, tglAwal)
 
 def getTime():
