@@ -93,8 +93,10 @@ def saveErrorLog(errorTraceback, driver, reqId):
 
 	# Save html page
 	soup = BeautifulSoup(driver.page_source, "html.parser")
+	prettySoup = soup.prettify()
+	html = str(prettySoup)
 	with open(htmlFile, 'w') as f:
-		f.write(str(soup.prettify()))
+		f.write(html)
 
 	# Save page screenshot
 	driver.get_screenshot_as_file(shotFile)
