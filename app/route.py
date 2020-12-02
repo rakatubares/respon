@@ -70,7 +70,6 @@ def getResponsePeb(noAju):
 				errorTraceback = traceback.format_exc()
 				saveErrorLog(errorTraceback, ekspor.driver, ekspor.req_id)
 				ekspor.is_alive = False
-				ekspor.is_idle = True
 
 			if ekspor.is_alive == False:
 				ekspor.closeDriver()

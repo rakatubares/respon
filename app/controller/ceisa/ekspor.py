@@ -166,6 +166,7 @@ class Ekspor(object):
 				msg = 'Aju tidak ditemukan atau belum mendapat respon NPE/PPB'
 				is_end = True
 				self.updateStatus(msg, is_end)
+				pre.waitLoading(self.driver)
 
 	def chooseResponses(self, rows):
 		print(f'PEB [ID:{self.req_id}] - Choose response..')
