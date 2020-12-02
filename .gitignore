@@ -5,12 +5,14 @@ dist/
 env/
 htmlcov/
 instance/
+logs/errors/*
 venv/
 *.egg-info/
 
 .coverage
 *.pyc
 *.log
+!*.gitkeep
 
 config.py
 web.wsgi

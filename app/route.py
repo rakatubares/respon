@@ -1,7 +1,9 @@
-import threading, time
+import os, threading, time, traceback
+from bs4 import BeautifulSoup
 from datetime import datetime
 from flask import render_template, request, jsonify
 from flask_socketio import emit
+from pathlib import Path
 from selenium.common.exceptions import InvalidSessionIdException, TimeoutException, WebDriverException
 
 from respon import app, socketio
@@ -42,6 +44,7 @@ def getResponseManifest(noAju):
 
 def initiateEkspor():
 	print('Initiate peb..')
+	emit('my_response', {'data': f'Starting bot, mohon tunggu', 'time': getTime(), 'is_end': False})
 
 	global ekspor
 	ekspor = Ekspor()
@@ -51,15 +54,51 @@ def getResponsePeb(noAju):
 	isvalid, tglAwal = validate(noAju)
 	tglAkhir = getDate()
 	if isvalid == True:
-		if 'ekspor' not in globals():
+		if (
+			'ekspor' not in globals() or
+			('ekspor' in globals() and ekspor.is_alive == False)
+		):
 			initiateEkspor()
 		while ekspor.is_idle == False:
+			print('Wait queue..')
 			time.sleep(2)
 		else:
-			ekspor.getResponses(tglAwal, tglAkhir, noAju)
+			try:
+				ekspor.getResponses(tglAwal, tglAkhir, noAju)
+			except Exception:
+				ekspor.updateStatus('Gagal melakukan pencarian. Coba beberapa saat lagi.', True)
+				errorTraceback = traceback.format_exc()
+				saveErrorLog(errorTraceback, ekspor.driver, ekspor.req_id)
+				ekspor.is_alive = False
+				ekspor.is_idle = True
+
 			if ekspor.is_alive == False:
 				ekspor.closeDriver()
-				initiateEkspor()
+
+def saveErrorLog(errorTraceback, driver, reqId):
+	now = datetime.now()
+	errorDir = os.path.join('logs','errors', str(now.year), str(now.month), str(now.day))
+	Path(errorDir).mkdir(parents=True, exist_ok=True)
+
+	logName = f'{reqId}_error.log'
+	htmlName = f'{reqId}_page.html'
+	shotName = f'{reqId}_shot.png'
+
+	logFile = os.path.join(errorDir, logName)
+	htmlFile = os.path.join(errorDir, htmlName)
+	shotFile = os.path.join(errorDir, shotName)
+
+	# Save error traceback
+	with open(logFile, 'w') as f:
+		f.write(errorTraceback)
+
+	# Save html page
+	soup = BeautifulSoup(driver.page_source, "html.parser")
+	with open(htmlFile, 'w') as f:
+		f.write(str(soup.prettify()))
+
+	# Save page screenshot
+	driver.get_screenshot_as_file(shotFile)
 
 def getResponsePib(noAju):
 	# emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': True})
