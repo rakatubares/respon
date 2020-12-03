@@ -94,7 +94,7 @@ def saveErrorLog(errorTraceback, driver, reqId):
 	# Save html page
 	soup = BeautifulSoup(driver.page_source, "html.parser")
 	prettySoup = soup.prettify()
-	html = str(prettySoup)
+	html = prettySoup.encode('utf-8').strip()
 	with open(htmlFile, 'w') as f:
 		f.write(html)
 
