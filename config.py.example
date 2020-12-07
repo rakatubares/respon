@@ -17,6 +17,7 @@ class ProductionConfig(object):
 
 	# geckodriver
 	PATH_GECKODRIVER = 'path/to/geckodriver'
+	PATH_GECKODRIVER_LOG = 'path/to/geckodriver.log'
 
 class DevelopmentConfig(object):
 	# flask
@@ -34,3 +35,4 @@ class DevelopmentConfig(object):
 
 	# geckodriver
 	PATH_GECKODRIVER = 'path/to/geckodriver'
+	PATH_GECKODRIVER_LOG = 'path/to/geckodriver.log'

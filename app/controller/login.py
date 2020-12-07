@@ -53,7 +53,7 @@ class Login(object):
 		caps = DesiredCapabilities().FIREFOX
 		caps["pageLoadStrategy"] = "eager"
 
-		ff_profile = webdriver.FirefoxProfile(profile_directory=app.config['PATH_GECKODRIVER'])
+		# ff_profile = webdriver.FirefoxProfile(profile_directory=app.config['PATH_GECKODRIVER'])
 
 		# create a new Firefox session
 		self.driver = webdriver.Firefox(options=options, capabilities=caps, service_log_path=app.config['PATH_GECKODRIVER_LOG'])
