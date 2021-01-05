@@ -92,11 +92,11 @@ def saveErrorLog(errorTraceback, driver, reqId):
 		f.write(errorTraceback)
 
 	# Save html page
-	soup = BeautifulSoup(driver.page_source, "html.parser")
-	prettySoup = soup.prettify()
-	html = prettySoup.encode('utf-8').strip()
-	with open(htmlFile, 'w') as f:
-		f.write(html)
+	# soup = BeautifulSoup(driver.page_source, "html.parser")
+	# prettySoup = soup.prettify()
+	# html = prettySoup.encode('utf-8').strip()
+	# with open(htmlFile, 'w') as f:
+	# 	f.write(html)
 
 	# Save page screenshot
 	driver.get_screenshot_as_file(shotFile)
