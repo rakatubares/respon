@@ -12,7 +12,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
-# import apps.config as cfg
 from respon import app, db
 from app.models import SignIn
 
@@ -53,10 +52,13 @@ class Login(object):
 		caps = DesiredCapabilities().FIREFOX
 		caps["pageLoadStrategy"] = "eager"
 
-		# ff_profile = webdriver.FirefoxProfile(profile_directory=app.config['PATH_GECKODRIVER'])
-
 		# create a new Firefox session
-		self.driver = webdriver.Firefox(options=options, capabilities=caps, service_log_path=app.config['PATH_GECKODRIVER_LOG'])
+		self.driver = webdriver.Firefox(
+			options=options, 
+			capabilities=caps, 
+			executable_path=app.config['PATH_GECKODRIVER'], 
+			service_log_path=app.config['PATH_GECKODRIVER_LOG']
+		)
 		self.driver.get(self.url)
 		login_form = EC.presence_of_element_located((By.ID, 'txtUserName'))
 		WebDriverWait(self.driver, 120).until(login_form)
