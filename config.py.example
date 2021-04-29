@@ -11,9 +11,15 @@ class ProductionConfig(object):
 	SQLALCHEMY_DATABASE_URI = 'mysql://user:password@server/db_prod_name'
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-	# ceisa
+	# ceisa sso1
 	CEISA_USER = 'username.ceisa'
 	CEISA_PASSWORD = 'password.ceisa'
+
+	# ceisa sso2
+	BEACUKAI_API_KEY = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+	SSO2_TOKEN = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+	USER_NIP = '000000000000000000'
+	USER_KD_KANTOR = '000000'
 
 	# geckodriver
 	PATH_GECKODRIVER = 'path/to/geckodriver'
@@ -29,9 +35,15 @@ class DevelopmentConfig(object):
 	SQLALCHEMY_DATABASE_URI = 'mysql://user:password@server/db_dev_name'
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-	# ceisa
+	# ceisa sso1
 	CEISA_USER = 'username.ceisa'
 	CEISA_PASSWORD = 'password.ceisa'
+
+	# ceisa sso2
+	BEACUKAI_API_KEY = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+	SSO2_TOKEN = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+	USER_NIP = '000000000000000000'
+	USER_KD_KANTOR = '000000'
 
 	# geckodriver
 	PATH_GECKODRIVER = 'path/to/geckodriver'
