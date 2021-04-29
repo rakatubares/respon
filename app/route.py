@@ -7,8 +7,9 @@ from pathlib import Path
 from selenium.common.exceptions import InvalidSessionIdException, TimeoutException, WebDriverException
 
 from respon import app, socketio
-from app.controller.ceisa.manifest import Manifest
 from app.controller.ceisa.ekspor import Ekspor
+from app.controller.ceisa.impor import Impor
+from app.controller.ceisa.manifest import Manifest
 
 def switchRespon(jnsAju, noAju):
 	switcher = {
@@ -74,6 +75,40 @@ def getResponsePeb(noAju):
 			if ekspor.is_alive == False:
 				ekspor.closeDriver()
 
+def initiateImpor():
+	print('Initiate pib..')
+	emit('my_response', {'data': f'Starting bot, mohon tunggu', 'time': getTime(), 'is_end': False})
+
+	global impor
+	impor = Impor()
+
+def getResponsePib(noAju):
+	# emit('my_response', {'data': f'Kirim ulang respon PIB belum tersedia', 'time': getTime(), 'is_end': True})
+	emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': False})
+	isvalid, tglAwal = validate(noAju)
+	tglAkhir = getDate()
+	if isvalid == True:
+		if (
+			'impor' not in globals() or
+			('impor' in globals() and impor.is_alive == False)
+		):
+			initiateImpor()
+		while impor.is_idle == False:
+			print('Wait queue..')
+			time.sleep(2)
+		else:
+			try:
+				impor.getResponses(tglAwal, tglAkhir, noAju)
+			except Exception as e:
+				impor.updateStatus('Gagal melakukan pencarian. Coba beberapa saat lagi.', True)
+				errorTraceback = traceback.format_exc()
+				saveErrorLog(errorTraceback, impor.driver, impor.req_id)
+				impor.is_alive = False
+				raise e
+
+			if impor.is_alive == False:
+				impor.closeDriver()
+
 def saveErrorLog(errorTraceback, driver, reqId):
 	now = datetime.now()
 	errorDir = os.path.join('logs','errors', str(now.year), str(now.month), str(now.day))
@@ -100,10 +135,6 @@ def saveErrorLog(errorTraceback, driver, reqId):
 
 	# Save page screenshot
 	driver.get_screenshot_as_file(shotFile)
-
-def getResponsePib(noAju):
-	# emit('my_response', {'data': f'Processing PIB aju {noAju}', 'time': getTime(), 'is_end': True})
-	emit('my_response', {'data': f'Kirim ulang respon PIB belum tersedia', 'time': getTime(), 'is_end': True})
 
 def validate(noAju):
 	isvalid = False

@@ -6,6 +6,7 @@ env/
 htmlcov/
 instance/
 logs/errors/*
+output/
 venv/
 *.egg-info/
 
