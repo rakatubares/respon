@@ -64,7 +64,7 @@
 			<div class="img-fill">
 				<img src="{{ url_for('static', filename='images/slide-02.jpg') }}" alt="">
 				<div class="text-content">
-					<h5>Kirim Ulang Respon</h5>
+					<h5>Kirim Ulang Respon BC Soetta</h5>
 					<div id="subscribe" class="container">
 						<form id="request-respon" action="" method="get">
 							<div class="col-lg-10 offset-lg-1">
@@ -73,7 +73,7 @@
 										<fieldset>
 											<select name="jenis" id="jnsaju" required="">
 												<option selected="" disabled="" hidden="">Pilih Aju</option>
-												<!-- <option>PIB</option> -->
+												<option>PIB</option>
 												<option>PEB</option>
 												<option>Manifest</option>
 											</select>
@@ -170,26 +170,28 @@
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {
 
-				var socket = io();
-
-				socket.on('my_response', function(msg, cb) {
-					$('#table-result > tbody').append(`<tr><td>${msg.time}</td><td>${msg.data}</td></tr>`);
-					if (cb)
-						cb();
-					if (msg.is_end == true) {
-						$('form#request-respon button#form-submit > i').removeClass('fa-spinner fa-pulse');
-						$('form#request-respon button#form-submit > i').addClass('fa-search');
-						$('form#request-respon button#form-submit').prop('disabled', false);
-					};
-				});
-
 				$('form#request-respon').submit(function(event) {
+					event.preventDefault();
+
+					var socket = io();
 					$('#table-result > tbody').empty();
 					$('form#request-respon button#form-submit > i').toggleClass('fa-spinner fa-pulse fa-search');
 					$('form#request-respon button#form-submit').prop('disabled', true);
 					socket.emit('request_respon', {jnsaju: $('#jnsaju').val(), noaju: $('#noaju').val()});
-					return false;
+
+					socket.on('my_response', function(msg, cb) {
+						$('#table-result > tbody').append(`<tr><td>${msg.time}</td><td>${msg.data}</td></tr>`);
+						// if (cb)
+						// 	cb();
+						if (msg.is_end == true) {
+							$('form#request-respon button#form-submit > i').removeClass('fa-spinner fa-pulse');
+							$('form#request-respon button#form-submit > i').addClass('fa-search');
+							$('form#request-respon button#form-submit').prop('disabled', false);
+							socket.disconnect();
+						};
+					});
 				});
+
 			});
 		</script>
 
