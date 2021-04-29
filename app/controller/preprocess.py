@@ -15,3 +15,8 @@ def waitLoading(driver, timeout=10):
 			WebDriverWait(driver, timeout).until(closeLoading)
 		except TimeoutException:
 			print('Loading too long..')
+
+def waitModalClose(driver, timeout=30):
+	xpathModalMask = "//div[@class='z-modal-mask']"
+	checkModalClose = EC.invisibility_of_element_located((By.XPATH, xpathModalMask))
+	WebDriverWait(driver, timeout).until(checkModalClose)
